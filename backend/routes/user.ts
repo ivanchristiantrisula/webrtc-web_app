@@ -44,7 +44,9 @@ app.post("/login", async(req,res)=>{
         bcrypt.compare(password,doc.password,(err,result)=>{
             if (err) return console.log(err);
             if(result){
-                res.status(200).send("OK");
+                let token = require("../library/generateToken")(doc)
+                res.cookie("token",token, { httpOnly: false })
+                res.status(200).end();
             }else{
                 res.status(401).send({errors : ["Wrong email or password"]});
             }
@@ -52,6 +54,10 @@ app.post("/login", async(req,res)=>{
         
 
     })
+})
+
+app.get("/testCookie",(req,res)=>{
+    console.log(req.cookies);
 })
 
 

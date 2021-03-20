@@ -1,7 +1,9 @@
 import express from "express";
-import dotenv from "dotenv";
+const dotenv = require("dotenv").config();
 const mongoose = require("mongoose");
 const userRouter = require("./routes/user");
+const cors = require("cors");
+const cookieParser = require('cookie-parser');
 
 let userModel = require("./models/userModel");
 
@@ -9,9 +11,10 @@ const server = express();
 server.use(express.static("public"));
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
-dotenv.config();
+server.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+server.use(cookieParser())
 
-server.use("/", userRouter);
+server.use("/api/user/", userRouter);
 
 mongoose.connect(process.env.DATABASE_URI,{useNewUrlParser: true, useUnifiedTopology: true});
 
