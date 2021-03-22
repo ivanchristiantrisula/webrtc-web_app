@@ -28,10 +28,8 @@ function App() {
       withCredentials: true
     })
     .then((res)=>{
-      //if(res.status == 200) history.push("/home");
-      axios.get(`${process.env.REACT_APP_BACKEND_URI}/api/user/testCookie`,{
-        withCredentials: true
-      });
+      if(res.status == 200) history.push("/chat");
+      
     })
     .catch((error)=>{
       console.log(error);

@@ -6,6 +6,7 @@ import {Switch,Route, BrowserRouter} from 'react-router-dom';
 
 import LandingPage from "./components/landing/";
 import RegisterPage from "./components/register/";
+import MainPage from "./components/main/";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={LandingPage}/>
         <Route path="/register" component={RegisterPage}/>
+        <Route path="/chat" component={MainPage}/>
       </Switch>
     </BrowserRouter>
     
