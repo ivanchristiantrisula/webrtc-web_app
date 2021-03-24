@@ -8,7 +8,7 @@ function App(){
     let [userSocketID,setUserSocketID] = useState("")
 
     useEffect(() => {
-        socket.current = io.connect("localhost:3002");
+        socket.current = io.connect("localhost:3001");
 
         socket?.current?.on("yourID", (id : any) => {
             setUserSocketID(id);

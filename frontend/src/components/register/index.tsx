@@ -24,7 +24,7 @@ function App() {
 
   const handleRegister = (e : any) => {
     e.preventDefault();
-    axios.post(`${process.env.REACT_APP_BACKEND_URI}/api/user/register`,{
+    axios.post(process.env.REACT_APP_BACKEND_URI+"/api/user/register",{
       email : email,
       password : password,
       name : name,
