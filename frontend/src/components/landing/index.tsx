@@ -7,6 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText'
 import FormLabel from '@material-ui/core/FormLabel'
 import { useHistory } from 'react-router-dom';
 import axios from "axios";
+import styles from "./landing.module.css"
 
 
 function App() {
@@ -37,7 +38,7 @@ function App() {
   }
 
   return (
-    <div className="login-page">
+    <div className={styles.loginPage}>
       <div>
         <form action="" onSubmit={handleLogin}>
           <FormControl>

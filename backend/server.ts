@@ -13,7 +13,7 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+app.use(cors({credentials: true, origin: process.env.FRONTEND_URI}));
 app.use(cookieParser())
 
 app.use("/api/user/", userRouter);
@@ -32,21 +32,28 @@ let users = {};
 
 const io = socket(server,{
     cors: {
-        origin: '*',
+        origin: process.env.FRONTEND_URI,
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
 io.on('connection', socket =>{
-    console.log(socket.handshake.headers.cookie);
-    
-    if (!users[socket.id]) {
-        users[socket.id] = socket.id;
-        console.log
+    let userData = require("./library/decodeToken")(socket.handshake.headers.cookie.replace('token=',''));
+
+    if(userData){
+        if (!users[socket.id]) {
+            users[socket.id] = userData;
+            console.log(userData.email+" connected!");
+        }
+    }else{
+        socket.disconnect();
     }
+    
     socket.emit("yourID", socket.id);
     io.sockets.emit("allUsers", users);
     socket.on('disconnect', () => {
-        console.log("dc");
+        console.log(userData.email+" disconnected!");
         delete users[socket.id];
         io.sockets.emit("allUsers", users);
     })
