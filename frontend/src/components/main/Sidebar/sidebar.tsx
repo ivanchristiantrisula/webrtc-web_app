@@ -16,7 +16,6 @@ function App() {
       <List>
         <ListItem
           button
-          key="Ga tau"
           style={{
             alignItems: "center",
             justifyContent: "center",
@@ -32,7 +31,6 @@ function App() {
         </ListItem>
         <ListItem
           button
-          key="Ga tau"
           style={{
             alignItems: "center",
             justifyContent: "center",
@@ -48,7 +46,6 @@ function App() {
         </ListItem>
         <ListItem
           button
-          key="Ga tau"
           style={{
             alignItems: "center",
             justifyContent: "center",
