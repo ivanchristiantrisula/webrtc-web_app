@@ -4,6 +4,8 @@ import styles from "./main.module.css";
 import Sidebar from "./Sidebar/sidebar";
 import Friendlist from "./Friendlist/friendlist";
 import _, { omit } from "underscore";
+import peer from "simple-peer";
+import PrivateChat from "./PrivateChat/privatechat";
 const io = require("socket.io-client");
 
 //import Peer from "simple-peer";
@@ -13,7 +15,7 @@ function App() {
   let socket: any = useRef();
   let [userSocketID, setUserSocketID] = useState("");
   let [socketConnection, setSocketConnection] = useState(false);
-  let [privateChatTarget, setPrivateChatTarget] = useState("");
+  let [privateChatTarget, setPrivateChatTarget] = useState();
 
   useEffect(() => {
     socket.current = io.connect("localhost:3001", {
@@ -38,6 +40,12 @@ function App() {
       setSocketConnection(false);
       console.log("Disconnected! Reconnecting to signalling server");
     });
+
+    //acc call
+    socket?.current?.on("connectionReq", (data: any) => {
+      alert("ditelpon bang");
+      console.log(data);
+    });
   }, []);
 
   return (
@@ -53,11 +61,19 @@ function App() {
           <Friendlist
             users={allUsers}
             userID={userSocketID}
-            setPrivateChatTarget={(e: string) => setPrivateChatTarget(e)}
+            setPrivateChatTarget={(e: any) => setPrivateChatTarget(e)}
           />
         </Grid>
         <Grid item xs className={styles.chatContainer}>
-          <Box></Box>
+          {privateChatTarget != null ? (
+            <PrivateChat
+              userSocketID={userSocketID}
+              socketRecipient={privateChatTarget}
+              socket={socket}
+            />
+          ) : (
+            ""
+          )}
         </Grid>
       </Grid>
     </Box>
