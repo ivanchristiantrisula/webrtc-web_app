@@ -1,43 +1,25 @@
 import { SignalCellular1BarTwoTone } from "@material-ui/icons";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Peer from "simple-peer";
 import io from "socket.io-client";
+import BottomBar from "./bottomBar";
 
 export default function App(props: any) {
   useEffect(() => {
-    const peer = new Peer({
-      initiator: true,
-      trickle: false,
-      config: {
-        iceServers: [
-          {
-            urls: "stun:numb.viagenie.ca",
-            username: "sultan1640@gmail.com",
-            credential: "98376683",
-          },
-          {
-            urls: "turn:numb.viagenie.ca",
-            username: "sultan1640@gmail.com",
-            credential: "98376683",
-          },
-        ],
-      },
-      // stream: stream,
-    });
-
-    peer.on("signal", (data: any) => {
-      props.socket.current.emit("requestConnection", {
-        userToCall: props.socketRecipient,
-        signalData: data,
-        from: props.userSocketID,
-      });
-    });
-
-    props.socket.current.on("connectionAcc", (signal: any) => {
-      // setCallAccepted(true);
-      console.log(signal);
-      peer.signal(signal);
-    });
+    console.log(props.peer);
   });
-  return <div>Ini chat gan</div>;
+
+  function sendChatText(text: string) {
+    props.peer.send(text);
+  }
+
+  return (
+    <div>
+      <BottomBar
+        handleSendText={(e: string) => {
+          sendChatText(e);
+        }}
+      />
+    </div>
+  );
 }
