@@ -71,7 +71,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("acceptConnection", (data) => {
-    io.to(data.to).emit("connectionAcc", data.signal);
+    console.log(data);
+    io.to(data.to).emit("connectionAcc", data);
   });
 });
 
