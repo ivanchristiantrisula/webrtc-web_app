@@ -3,32 +3,49 @@ import { useEffect, useState } from "react";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import BottomBar from "./bottomBar";
+import MeBubble from "../ChatBubble/MeBubble";
+import ThemBubble from "../ChatBubble/ThemBubble";
 
-export default function App(props: any) {
+export default (props: any) => {
+  let [chat, setChat] = useState<any[]>([]);
+
   useEffect(() => {
-    //console.log(props.peer);
-    console.log(props.chat);
-  }, [props.chat]);
+    props.peer.on("data", (data: any) => {
+      let x: any = [...chat];
+      x.push(JSON.parse(data.toString()));
+      setChat([...x]);
+    });
+  }, []);
 
-  function sendChatText(text: string) {
+  useEffect(() => {
+    console.log(chat);
+  }, [chat]);
+
+  const sendChatText = (text: string) => {
     let payload = {
-      origin: "direct", //direct,foward,quote
+      from: props.userSocketID,
+      method: "direct", //direct,foward,quote
       type: "text",
       message: text,
+      timestamp: new Date().getTime(),
     };
+    let x: any = [...chat];
+    x.push(payload);
+    console.log(x);
+    setChat([...x]);
 
     props.peer.send(Buffer.from(JSON.stringify(payload)));
-  }
+  };
 
   return (
     <div>
-      {() => {
-        if (props.chat != "undefined") {
-          return props.chat.map((obj: any) => {
-            return obj.message;
-          });
+      {chat.map(function (obj: any) {
+        if (obj.from == props.userSocketID) {
+          return <MeBubble message={obj.message} />;
+        } else {
+          return <ThemBubble message={obj.message} />;
         }
-      }}
+      })}
 
       <BottomBar
         handleSendText={(e: string) => {
@@ -37,4 +54,4 @@ export default function App(props: any) {
       />
     </div>
   );
-}
+};

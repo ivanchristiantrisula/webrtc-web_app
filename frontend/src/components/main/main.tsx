@@ -12,7 +12,7 @@ require("dotenv").config();
 
 //import Peer from "simple-peer";
 
-function App() {
+const App = () => {
   let [allUsers, setAllUsers] = useState({});
   let socket: any = useRef();
   let userSocketID = useRef("");
@@ -21,9 +21,8 @@ function App() {
   let [openChatSocket, setOpenChatSocket] = useState("");
   let peers: any = useRef(new Array());
   let [chatConnectionStatus, setChatConnectionStatus] = useState([]);
-  let [chat, setChat] = useState({});
 
-  function initSocketListener() {
+  const initSocketListener = () => {
     socket.current = io.connect(process.env.REACT_APP_BACKEND_URI, {
       withCredentials: true,
     });
@@ -50,6 +49,7 @@ function App() {
     socket?.current?.on("connectionReq", (data: any) => {
       console.log(data);
       addPeer(data.from, false, data.signal);
+      setOpenChatSocket(data.from);
     });
 
     socket.current.on("connectionAcc", (data: any) => {
@@ -57,13 +57,17 @@ function App() {
     });
 
     //close socket connection when tab is closed by user
-    window.onbeforeunload = function () {
-      socket.onclose = function () {}; // disable onclose handler first
-      socket.close();
-    };
-  }
+    // window.onbeforeunload = function () {
+    //   socket.onclose = function () {}; // disable onclose handler first
+    //   socket.close();
+    // };
+  };
 
-  function addPeer(socket_id: string, isInitiator: boolean, signalData?: any) {
+  const addPeer = (
+    socket_id: string,
+    isInitiator: boolean,
+    signalData?: any
+  ) => {
     peers.current[socket_id] = new Peer({
       initiator: isInitiator,
       trickle: false,
@@ -85,17 +89,6 @@ function App() {
       }
     });
 
-    peers.current[socket_id].on("data", (data: any) => {
-      let x = chat;
-      if (typeof x[socket_id] == "undefined") {
-        x[socket_id] = new Array(JSON.parse(data.toString()));
-      } else {
-        x[socket_id].push(JSON.parse(data.toString()));
-      }
-
-      setChat(x);
-    });
-
     // peer.on("stream", (stream) => {
     //   partnerVideo.current.srcObject = stream;
     // });
@@ -105,20 +98,18 @@ function App() {
       let temp = { ...chatConnectionStatus };
       temp[socket_id] = 2;
       setChatConnectionStatus(temp);
-      alert("connected");
     });
 
     if (!isInitiator) peers.current[socket_id].signal(signalData);
 
     //setOpenChatSocket(socket_id);
     //open private chat section
-  }
+  };
 
-  function startPeerConnection(socketRecipient: string) {
+  const startPeerConnection = (socketRecipient: string) => {
     addPeer(socketRecipient, true);
-  }
-
-  function acceptCoonection(data: any) {}
+    setOpenChatSocket(socketRecipient);
+  };
 
   useEffect(() => {
     initSocketListener();
@@ -141,12 +132,11 @@ function App() {
           />
         </Grid>
         <Grid item xs className={styles.chatContainer}>
-          {!_.isEmpty(openChatPeer) ? (
+          {openChatSocket != "" ? (
             <PrivateChat
-              userSocketID={userSocketID}
-              peer={openChatPeer}
+              userSocketID={userSocketID.current}
+              peer={peers.current[openChatSocket]}
               socket={socket}
-              chat={chat[openChatSocket]}
             />
           ) : (
             ""
@@ -155,6 +145,6 @@ function App() {
       </Grid>
     </Box>
   );
-}
+};
 
 export default App;
