@@ -74,6 +74,10 @@ io.on("connection", (socket) => {
     console.log(data);
     io.to(data.to).emit("connectionAcc", data);
   });
+
+  socket.on("startVideoCall", (data) => {
+    io.to(data.to).emit("startVideoCall");
+  });
 });
 
 server.listen(3001, () => {

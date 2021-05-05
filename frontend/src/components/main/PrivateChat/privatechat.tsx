@@ -3,55 +3,88 @@ import { useEffect, useState } from "react";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import BottomBar from "./bottomBar";
-import MeBubble from "../ChatBubble/MeBubble";
-import ThemBubble from "../ChatBubble/ThemBubble";
+import ChatBubble from "../ChatBubble/ChatBubble";
+import TopBar from "./topbar";
+import VideoCall from "../VideoCall/videocall";
+import { Socket } from "dgram";
+import SimplePeerFiles from "simple-peer-files";
 
 export default (props: any) => {
   let [chat, setChat] = useState<any[]>([]);
+  let [videoCall, setVideoCall] = useState(false);
 
   useEffect(() => {
-    props.peer.on("data", (data: any) => {
-      let x: any = [...chat];
-      x.push(JSON.parse(data.toString()));
-      setChat([...x]);
+    //console.log(props.peer);
+    //console.log(props);
+    props.socket.on("startVideoCall", () => {
+      startVideoCall(false);
     });
-  }, []);
-
-  useEffect(() => {
-    console.log(chat);
-  }, [chat]);
+  });
 
   const sendChatText = (text: string) => {
     let payload = {
       from: props.userSocketID,
-      method: "direct", //direct,foward,quote
+      kind: "direct", //direct,foward,quote
       type: "text",
       message: text,
       timestamp: new Date().getTime(),
     };
-    let x: any = [...chat];
-    x.push(payload);
-    console.log(x);
-    setChat([...x]);
-
+    //setChat([...chat, payload]);
+    props.addChatFromSender(payload);
     props.peer.send(Buffer.from(JSON.stringify(payload)));
+  };
+
+  const startVideoCall = (isInitiator: boolean) => {
+    setVideoCall(true);
+
+    if (isInitiator)
+      props.socket.emit("startVideoCall", { to: props.recipientSocketID });
+  };
+
+  const handleFileUpload = (file: File) => {
+    const spf = new SimplePeerFiles();
+
+    spf.send(props.peer, "1", file).then((transfer: any) => {
+      transfer.on("progress", (sentBytes: any) => {
+        console.log(sentBytes);
+      });
+      transfer.start();
+    });
   };
 
   return (
     <div>
-      {chat.map(function (obj: any) {
-        if (obj.from == props.userSocketID) {
-          return <MeBubble message={obj.message} />;
-        } else {
-          return <ThemBubble message={obj.message} />;
-        }
-      })}
+      {videoCall ? (
+        <div>
+          <VideoCall peer={props.peer} userSocketID={props.userSocketID} />
+        </div>
+      ) : (
+        <div>
+          <TopBar
+            startVideoCall={() => {
+              startVideoCall(true);
+            }}
+          />
+          {props.chat !== undefined ? (
+            <div>
+              {props.chat.map(function (obj: any) {
+                return <ChatBubble data={obj} socketID={props.userSocketID} />;
+              })}
+            </div>
+          ) : (
+            ""
+          )}
 
-      <BottomBar
-        handleSendText={(e: string) => {
-          sendChatText(e);
-        }}
-      />
+          <BottomBar
+            handleSendText={(e: string) => {
+              sendChatText(e);
+            }}
+            handleFileUpload={(file: File) => {
+              handleFileUpload(file);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

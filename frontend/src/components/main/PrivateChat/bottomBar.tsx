@@ -1,6 +1,7 @@
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import SendIcon from "@material-ui/icons/Send";
+import ImageIcon from "@material-ui/icons/Image";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -30,6 +31,12 @@ export default function (props: any) {
       >
         <SendIcon />
       </div>
+      <input
+        type="file"
+        onChange={(e) => {
+          props.handleFileUpload(e.target.files[0]);
+        }}
+      />
     </div>
   );
 }
