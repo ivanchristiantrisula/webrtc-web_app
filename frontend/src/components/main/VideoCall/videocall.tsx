@@ -10,7 +10,7 @@ export default (props: any) => {
     props.peer.on("stream", (stream: any) => {
       alert("stream");
       console.log(stream);
-      setUserStream(stream);
+      setPartnerStream(stream);
 
       if (partnerVideo.current) {
         partnerVideo.current.srcObject = stream;
@@ -39,8 +39,8 @@ export default (props: any) => {
 
   return (
     <div>
-      {UserVideo}
       {PartnerVideo}
+      {UserVideo}
     </div>
   );
 };

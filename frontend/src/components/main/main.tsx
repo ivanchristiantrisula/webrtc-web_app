@@ -50,7 +50,7 @@ const App = () => {
       console.log("Disconnected! Reconnecting to signalling server");
     });
 
-    socket.current.on("connectionAcc", (data: any) => {
+    socket.current.on("sdpTransfer", (data: any) => {
       console.log(data);
       // peers.current[data.from].signal(data.signal);
       if (peers.current[data.from] !== undefined) {
@@ -91,7 +91,7 @@ const App = () => {
 
     peers.current[socket_id].on("signal", (data: any) => {
       console.log(data);
-      socket.current.emit("acceptConnection", {
+      socket.current.emit("transferSDP", {
         signal: data,
         to: socket_id,
         from: userSocketID.current,
@@ -106,7 +106,21 @@ const App = () => {
 
       transfer.on("done", (file: any) => {
         console.log(file);
-        alert("done trf");
+        //alert("done trf");
+        let payload = {
+          from: socket_id,
+          kind: "direct",
+          type: file.type,
+          timestamp: new Date().getTime(),
+          file: file,
+        };
+        let x = chats;
+        if (x[socket_id] === undefined) {
+          x[socket_id] = new Array(payload);
+        } else {
+          x[socket_id].push(payload);
+        }
+        setChats({ ...x });
       });
 
       // Call readyToSend() in the sender side
@@ -149,6 +163,7 @@ const App = () => {
   }, [chats]);
 
   const addChatFromSender = (data: any) => {
+    console.log(data);
     let x = chats;
     if (x[openChatSocket] === undefined) {
       x[openChatSocket] = new Array(data);

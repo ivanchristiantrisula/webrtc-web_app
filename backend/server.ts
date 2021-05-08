@@ -63,16 +63,9 @@ io.on("connection", (socket) => {
     io.sockets.emit("allUsers", users);
   });
 
-  socket.on("requestConnection", (data) => {
-    io.to(data.userToCall).emit("connectionReq", {
-      signal: data.signalData,
-      from: data.from,
-    });
-  });
-
-  socket.on("acceptConnection", (data) => {
+  socket.on("transferSDP", (data) => {
     console.log(data);
-    io.to(data.to).emit("connectionAcc", data);
+    io.to(data.to).emit("sdpTransfer", data);
   });
 
   socket.on("startVideoCall", (data) => {

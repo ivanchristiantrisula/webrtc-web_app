@@ -42,7 +42,16 @@ export default (props: any) => {
   };
 
   const handleFileUpload = (file: File) => {
+    //alert("sadf");
     const spf = new SimplePeerFiles();
+
+    props.addChatFromSender({
+      from: props.userSocketID,
+      kind: "direct",
+      type: file.type,
+      timestamp: new Date().getTime(),
+      file: file,
+    });
 
     spf.send(props.peer, "1", file).then((transfer: any) => {
       transfer.on("progress", (sentBytes: any) => {

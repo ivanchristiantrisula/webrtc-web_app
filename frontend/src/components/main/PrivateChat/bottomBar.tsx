@@ -2,7 +2,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import SendIcon from "@material-ui/icons/Send";
 import ImageIcon from "@material-ui/icons/Image";
-import { useState } from "react";
+import { useRef, useState, useLayoutEffect } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -17,16 +17,27 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function (props: any) {
   const classes = useStyles();
   let [text, setText] = useState("");
+  let fileInput = useRef();
+  let textInput = useRef<HTMLInputElement>();
+
+  useLayoutEffect(() => {
+    console.log(textInput); // { current: <h1_object> }
+  });
 
   return (
     <div className={classes.root}>
       <TextField
         label="Send a text"
+        inputRef={textInput}
         onChange={(e) => setText(e.target.value)}
       />
       <div
         onClick={() => {
-          props.handleSendText(text);
+          if (text != "") {
+            props.handleSendText(text);
+            setText("");
+            textInput.current.value = "";
+          }
         }}
       >
         <SendIcon />

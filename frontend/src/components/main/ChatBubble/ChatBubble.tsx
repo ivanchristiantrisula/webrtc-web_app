@@ -8,14 +8,7 @@ export default function (props: any) {
       let typeSplit = props.data.type.split("/");
       console.log(props.data);
       if (typeSplit[0] == "image") {
-        return (
-          <img
-            src={
-              "data:image/jpeg;base64," +
-              props.data.fileBuffer.toString("base64")
-            }
-          ></img>
-        );
+        return <img src={URL.createObjectURL(props.data.file)}></img>;
       }
     }
   };
