@@ -10,7 +10,7 @@ import GroupIcon from "@material-ui/icons/Group";
 import ChatIcon from "@material-ui/icons/Chat";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 
-function App() {
+function App(props: any) {
   return (
     <React.Fragment>
       <List>
@@ -52,7 +52,11 @@ function App() {
             flexDirection: "column",
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon
+            onClick={() => {
+              props.openAddFriendMenu();
+            }}
+          >
             <PersonAddIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"

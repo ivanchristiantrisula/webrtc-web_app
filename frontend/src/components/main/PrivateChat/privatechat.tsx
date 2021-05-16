@@ -19,7 +19,9 @@ export default (props: any) => {
     props.socket.on("startVideoCall", () => {
       startVideoCall(false);
     });
-  });
+
+    props.socket.on("endVideoCall", () => {});
+  }, []);
 
   const sendChatText = (text: string) => {
     let payload = {
@@ -65,7 +67,11 @@ export default (props: any) => {
     <div>
       {videoCall ? (
         <div>
-          <VideoCall peer={props.peer} userSocketID={props.userSocketID} />
+          <VideoCall
+            peer={props.peer}
+            userSocketID={props.userSocketID}
+            socket={props.socket}
+          />
         </div>
       ) : (
         <div>

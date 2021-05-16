@@ -13,12 +13,14 @@ app.post("/register", async (req, res) => {
   let password = req.body.password;
   let confirm = req.body.confirm;
   let name = req.body.name;
+  let username = req.body.username;
 
   if (password === confirm) {
     let newUser = new User({
       name: name,
       password: await bcrypt.hash(password, 10),
       email: email,
+      username: username,
     });
     newUser.save(function (err, u) {
       if (err) return res.status(400).send({ errors: [err.message] });
@@ -56,6 +58,21 @@ app.post("/login", async (req, res) => {
       res.status(401).send({ errors: ["User not found!"] });
     }
   });
+});
+
+app.get("/findUser", async (req, res) => {
+  let keyword = req.query.keyword;
+
+  User.findOne(
+    { username: new RegExp("^" + keyword + "$", "i") },
+    function (err, doc) {
+      if (!err) {
+        res.status(200).send(new Array(doc));
+      } else {
+        res.status(401).send(err);
+      }
+    }
+  );
 });
 
 app.get("/testCookie", (req, res) => {

@@ -1,4 +1,4 @@
-import { Grid, Paper, Box } from "@material-ui/core";
+import { Grid, Paper, Box, createStyles } from "@material-ui/core";
 import { useState, useEffect, useRef } from "react";
 import styles from "./main.module.css";
 import Sidebar from "./Sidebar/sidebar";
@@ -9,10 +9,21 @@ import PrivateChat from "./PrivateChat/privatechat";
 import { convertToObject } from "typescript";
 import streamSaver from "streamsaver";
 import SimplePeerFiles from "simple-peer-files";
+import { makeStyles } from "@material-ui/styles";
+import Modal from "@material-ui/core/Modal";
+import SearchUser from "./SearchUser/searchuser";
 const io = require("socket.io-client");
 require("dotenv").config();
 
 //import Peer from "simple-peer";
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    hidden: {
+      display: "none",
+    },
+  })
+);
 
 const App = () => {
   let [allUsers, setAllUsers] = useState({});
@@ -23,6 +34,10 @@ const App = () => {
   let peers: any = useRef({});
   let [chats, setChats] = useState({});
   let [chatConnectionStatus, setChatConnectionStatus] = useState([]);
+
+  let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
+
+  const classes = useStyles();
 
   const spf = new SimplePeerFiles();
 
@@ -173,37 +188,57 @@ const App = () => {
     setChats({ ...x });
   };
 
+  const openAddFriendMenu = () => {
+    setOpenSearchUserModal(true);
+  };
+
   return (
-    <Box height="100vh">
-      <Grid container justify="center" style={{ height: "100vh" }}>
-        <Grid style={{ width: "5rem" }} item className={styles.sidebar}>
-          <Sidebar />
-        </Grid>
-        <Grid item style={{ width: "30rem" }} className={styles.friendlist}>
-          <Friendlist
-            users={allUsers}
-            userID={userSocketID.current}
-            setPrivateChatTarget={(e: any) => startPeerConnection(e)}
-          />
-        </Grid>
-        <Grid item xs className={styles.chatContainer}>
-          {openChatSocket != "" ? (
-            <PrivateChat
-              userSocketID={userSocketID.current}
-              recipientSocketID={openChatSocket}
-              peer={peers.current[openChatSocket]}
-              socket={socket.current}
-              chat={chats[openChatSocket]}
-              addChatFromSender={(data: any) => {
-                addChatFromSender(data);
+    <>
+      <Box height="100vh">
+        <Grid container justify="center" style={{ height: "100vh" }}>
+          <Grid style={{ width: "5rem" }} item className={styles.sidebar}>
+            <Sidebar
+              openAddFriendMenu={() => {
+                openAddFriendMenu();
               }}
             />
-          ) : (
-            ""
-          )}
+          </Grid>
+          <Grid item style={{ width: "30rem" }} className={styles.friendlist}>
+            <Friendlist
+              users={allUsers}
+              userID={userSocketID.current}
+              setPrivateChatTarget={(e: any) => startPeerConnection(e)}
+            />
+          </Grid>
+          <Grid item xs className={styles.chatContainer}>
+            {openChatSocket != "" ? (
+              <PrivateChat
+                userSocketID={userSocketID.current}
+                recipientSocketID={openChatSocket}
+                peer={peers.current[openChatSocket]}
+                socket={socket.current}
+                chat={chats[openChatSocket]}
+                addChatFromSender={(data: any) => {
+                  addChatFromSender(data);
+                }}
+              />
+            ) : (
+              ""
+            )}
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
+      <Modal
+        open={openSearchUserModal}
+        onClose={() => {
+          setOpenSearchUserModal(false);
+        }}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      >
+        <SearchUser />
+      </Modal>
+    </>
   );
 };
 

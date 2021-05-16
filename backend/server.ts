@@ -71,6 +71,9 @@ io.on("connection", (socket) => {
   socket.on("startVideoCall", (data) => {
     io.to(data.to).emit("startVideoCall");
   });
+  socket.on("endVideoCall", (data) => {
+    io.to(data.to).emit("endVideoCall");
+  });
 });
 
 server.listen(3001, () => {
