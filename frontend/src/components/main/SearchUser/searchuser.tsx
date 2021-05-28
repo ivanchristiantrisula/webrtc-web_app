@@ -36,8 +36,29 @@ export default () => {
         }
       )
       .then((res) => {
-        console.log(res.data);
         setUsers(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const addFriend = (user: any) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_BACKEND_URI}/api/user/addFriend`,
+        {
+          user: user,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        if (res.data.error) alert(res.data.error);
+        if (res.status == 200) {
+          alert("sukses add friend");
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -52,7 +73,15 @@ export default () => {
       />
       <div>
         {users.map((obj) => {
-          if (!_.isEmpty(obj)) return <UserCard user={obj} />;
+          if (!_.isEmpty(obj))
+            return (
+              <UserCard
+                user={obj}
+                addFriend={(user: any) => {
+                  addFriend(user);
+                }}
+              />
+            );
         })}
       </div>
     </div>

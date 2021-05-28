@@ -4,6 +4,8 @@ let mongoose = require("mongoose");
 import dotenv from "dotenv";
 let User = require("../models/userModel");
 const bcrypt = require("bcrypt");
+let decodeToken = require("../library/decodeToken");
+import _ from "underscore";
 
 let app = express.Router();
 dotenv.config();
@@ -73,6 +75,98 @@ app.get("/findUser", async (req, res) => {
       }
     }
   );
+});
+
+app.post("/addFriend", async (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+    let target = req.body.user;
+    if (user) {
+      User.find(
+        [
+          { _id: target._id },
+          {
+            $nor: [{ "friends._id": user._id }, { "pendings._id": user._id }],
+          },
+        ],
+        (err, doc) => {
+          if (_.isEmpty(doc)) {
+            let targetData = {
+              _id: target._id,
+              name: target.name,
+              email: target.email,
+              username: target.username,
+            };
+
+            let userData = {
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+              username: user.username,
+            };
+            // User.update({ _id: user._id }, { $push: { pendings: userData } });
+            // User.update({ _id: target._id }, { $push: { pendings: targetData } });
+            User.updateOne(
+              { _id: target._id },
+              { $addToSet: { pendings: userData } },
+              (err, result) => {
+                console.log(result);
+              }
+            );
+            res.status(200).send("Success");
+          } else {
+            res.status(401).send({ errors: "Already in friendlist" });
+          }
+        }
+      );
+    } else {
+      res.status(401).send({ errors: "Invalide Token" });
+    }
+  } else {
+    res.status(401).send({ errors: "No Cookie :(" });
+  }
+});
+
+app.get("/getPendingFriends", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+    if (user) {
+      User.findOne({ _id: user._id }, "pendings", (err, docs) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send({ errors: err });
+        }
+
+        res.status(200).send(docs);
+      });
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
+app.post("/acceptFriendRequest", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+    let target = req.body.target;
+    if (user) {
+      User.update(
+        { _id: user._id },
+        { $pull: { pendings: { _id: target._id } } },
+        (err, docs) => {
+          if (err) res.status(500).send({ errors: [err] });
+
+          res.status(200).send("Success");
+        }
+      );
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
 });
 
 app.get("/testCookie", (req, res) => {

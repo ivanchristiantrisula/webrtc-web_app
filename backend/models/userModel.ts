@@ -1,3 +1,5 @@
+import { arrayify } from "tslint/lib/utils";
+
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
@@ -29,6 +31,10 @@ const userSchema = new mongoose.Schema({
     required: false,
   },
   blocks: {
+    type: Array,
+    required: false,
+  },
+  pendings: {
     type: Array,
     required: false,
   },

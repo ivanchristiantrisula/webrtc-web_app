@@ -13,7 +13,13 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ credentials: true, origin: process.env.FRONTEND_URI }));
+
+const corsConfig = {
+  credentials: true,
+  origin: process.env.FRONTEND_URI,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+};
+app.use(cors(corsConfig));
 app.use(cookieParser());
 
 app.use("/api/user/", userRouter);

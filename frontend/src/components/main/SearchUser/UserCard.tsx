@@ -1,4 +1,10 @@
-import { createStyles, makeStyles, Theme, Grid } from "@material-ui/core";
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  Grid,
+  Button,
+} from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import { deepOrange, deepPurple } from "@material-ui/core/colors";
 import { useEffect } from "react";
@@ -38,7 +44,20 @@ export default function (props: any) {
             {props.user.name.charAt(0)}
           </Avatar>
         </Grid>
-        <Grid item>{props.user.name}</Grid>
+        <Grid item xs={6}>
+          {props.user.name}
+        </Grid>
+        <Grid>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => {
+              props.addFriend(props.user);
+            }}
+          >
+            Add Friend
+          </Button>
+        </Grid>
       </Grid>
     </div>
   );

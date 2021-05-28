@@ -145,7 +145,6 @@ const App = () => {
     peers.current[socket_id].on("data", (data: any) => {
       let parsedData = JSON.parse(data.toString());
       if (parsedData.kind) {
-        console.log(data);
         let x = chats;
         if (x[socket_id] === undefined) {
           x[socket_id] = new Array(JSON.parse(data.toString()));
