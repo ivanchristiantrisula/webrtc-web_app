@@ -22,21 +22,6 @@ export default function (props: any) {
   const classes = useStyles();
   return (
     <div>
-      <Paper
-        className={classes.invite}
-        onClick={() => {
-          axios
-            .get("http://localhost:3001/api/user/getPendingFriends", {
-              withCredentials: true,
-            })
-            .then((res) => {
-              console.log(res);
-            });
-        }}
-      >
-        <h3>Friend Invites</h3>
-      </Paper>
-
       {Object.keys(props.users).map((keyName, i) => {
         if (keyName != props.userID)
           return (

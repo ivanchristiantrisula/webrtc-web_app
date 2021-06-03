@@ -38,6 +38,7 @@ db.once("open", function () {
 const server = http.createServer(app);
 
 let users = {};
+let filteredUsers = {};
 
 const io = socket(server, {
   cors: {
@@ -61,7 +62,24 @@ io.on("connection", (socket) => {
 
   socket.emit("yourID", socket.id);
 
-  io.sockets.emit("allUsers", users);
+  //io.sockets.emit("allUsers", users);
+  let onlineFriends = {};
+
+  for (let i = 0; i < userData.friends.length; i++) {
+    for (const key in users) {
+      if (Object.prototype.hasOwnProperty.call(users, key)) {
+        const element = users[key];
+        if (element._id == userData.friends[i]._id) {
+          onlineFriends[key] = element;
+          if (filteredUsers[socket.id] === undefined)
+            filteredUsers[socket.id] = new Array();
+          filteredUsers[socket.id].push(userData);
+        }
+      }
+    }
+  }
+
+  socket.emit("allUsers", filteredUsers[socket.id]);
 
   socket.on("disconnect", () => {
     console.log(userData.email + " disconnected!");

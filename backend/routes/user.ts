@@ -151,16 +151,73 @@ app.post("/acceptFriendRequest", (req, res) => {
   if (req.cookies) {
     let user = decodeToken(req.cookies.token);
     let target = req.body.target;
+
     if (user) {
-      User.update(
+      let userData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+      };
+
+      User.updateOne(
         { _id: user._id },
         { $pull: { pendings: { _id: target._id } } },
         (err, docs) => {
           if (err) res.status(500).send({ errors: [err] });
-
-          res.status(200).send("Success");
+          return;
         }
       );
+      User.updateOne(
+        { _id: target._id },
+        { $addToSet: { friends: userData } },
+        (err, result) => {
+          if (err) res.status(500).send({ errors: [err] });
+          return;
+        }
+      );
+
+      User.updateOne(
+        { _id: user._id },
+        { $addToSet: { friends: target } },
+        (err, result) => {
+          if (err) res.status(500).send({ errors: [err] });
+          return;
+        }
+      );
+
+      res.status(200).send("Success");
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
+app.post("/rejectFriendRequest", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+    let target = req.body.target;
+
+    if (user) {
+      let userData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+      };
+
+      User.updateOne(
+        { _id: user._id },
+        { $pull: { pendings: { _id: target._id } } },
+        (err, docs) => {
+          if (err) res.status(500).send({ errors: [err] });
+          return;
+        }
+      );
+
+      res.status(200).send("Success");
     } else {
       res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
     }

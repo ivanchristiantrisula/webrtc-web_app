@@ -1,12 +1,12 @@
-.sidebar{
-    border-right  : solid black 1px;
-    background-color: rgb(38, 38, 36)
+.sidebar {
+  border-right: solid black 1px;
+  background-color: rgb(38, 38, 36);
 }
-.friendlist{
-    border-right  : solid black 1px;
-    background-color: rgb(97, 97, 95)
+.friendlist {
+  border-right: solid black 1px;
+  background-color: rgb(97, 97, 95);
 }
-.chatContainer{
-    border-right  : solid black 1px;
-    background-color: rgb(97, 97, 95)
+.chatContainer {
+  border-right: solid black 1px;
+  background-color: rgb(97, 97, 95);
 }

@@ -37,7 +37,11 @@ function App(props: any) {
             flexDirection: "column",
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon
+            onClick={() => {
+              props.openMenu("chat");
+            }}
+          >
             <ChatIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"
@@ -54,7 +58,7 @@ function App(props: any) {
         >
           <ListItemIcon
             onClick={() => {
-              props.openAddFriendMenu();
+              props.openMenu("searchUser");
             }}
           >
             <PersonAddIcon

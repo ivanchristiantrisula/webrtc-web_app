@@ -1,4 +1,4 @@
-import { Grid, Paper, Box, createStyles } from "@material-ui/core";
+import { Grid, Paper, Box, createStyles, Theme } from "@material-ui/core";
 import { useState, useEffect, useRef } from "react";
 import styles from "./main.module.css";
 import Sidebar from "./Sidebar/sidebar";
@@ -17,13 +17,25 @@ require("dotenv").config();
 
 //import Peer from "simple-peer";
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    hidden: {
-      display: "none",
-    },
-  })
-);
+const useStyles = makeStyles((theme: Theme) => ({
+  hidden: {
+    display: "none",
+  },
+
+  sidebar: {
+    backgroundColor: theme.palette.primary.main,
+  },
+
+  friendlist: {
+    backgroundColor: theme.palette.background.default,
+    width: "30rem",
+  },
+
+  chatContainer: {
+    backgroundColor: theme.palette.background.default,
+    borderLeft: "solid black 1px",
+  },
+}));
 
 const App = () => {
   let [allUsers, setAllUsers] = useState({});
@@ -34,7 +46,7 @@ const App = () => {
   let peers: any = useRef({});
   let [chats, setChats] = useState({});
   let [chatConnectionStatus, setChatConnectionStatus] = useState([]);
-
+  let [openMenu, setOpenMenu] = useState("chat");
   let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
 
   const classes = useStyles();
@@ -188,28 +200,42 @@ const App = () => {
   };
 
   const openAddFriendMenu = () => {
-    setOpenSearchUserModal(true);
+    //setOpenSearchUserModal(true);
+    setOpenMenu("searchUser");
   };
 
   return (
     <>
       <Box height="100vh">
         <Grid container justify="center" style={{ height: "100vh" }}>
-          <Grid style={{ width: "5rem" }} item className={styles.sidebar}>
+          <Grid style={{ width: "5rem" }} item className={classes.sidebar}>
             <Sidebar
-              openAddFriendMenu={() => {
-                openAddFriendMenu();
+              openMenu={(menu: string) => {
+                setOpenMenu(menu);
               }}
             />
           </Grid>
-          <Grid item style={{ width: "30rem" }} className={styles.friendlist}>
+          <Grid
+            item
+            className={`${classes.friendlist} ${
+              openMenu != "chat" ? classes.hidden : ""
+            }`}
+          >
             <Friendlist
               users={allUsers}
               userID={userSocketID.current}
               setPrivateChatTarget={(e: any) => startPeerConnection(e)}
             />
           </Grid>
-          <Grid item xs className={styles.chatContainer}>
+          {openMenu == "searchUser" ? (
+            <Grid item style={{ width: "30rem" }}>
+              <SearchUser />
+            </Grid>
+          ) : (
+            ""
+          )}
+
+          <Grid item xs className={classes.chatContainer}>
             {openChatSocket != "" ? (
               <PrivateChat
                 userSocketID={userSocketID.current}
@@ -227,16 +253,6 @@ const App = () => {
           </Grid>
         </Grid>
       </Box>
-      <Modal
-        open={openSearchUserModal}
-        onClose={() => {
-          setOpenSearchUserModal(false);
-        }}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      >
-        <SearchUser />
-      </Modal>
     </>
   );
 };

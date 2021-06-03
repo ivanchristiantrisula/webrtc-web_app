@@ -7,15 +7,20 @@ import { Switch, Route, BrowserRouter } from "react-router-dom";
 import LandingPage from "./components/landing/";
 import RegisterPage from "./components/register/";
 import MainPage from "./components/main/main";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+
+const theme = createMuiTheme({});
 
 function App() {
   return (
     <BrowserRouter>
-      <Switch>
-        <Route exact path="/" component={LandingPage} />
-        <Route path="/register" component={RegisterPage} />
-        <Route path="/chat" component={MainPage} />
-      </Switch>
+      <ThemeProvider theme={theme}>
+        <Switch>
+          <Route exact path="/" component={LandingPage} />
+          <Route path="/register" component={RegisterPage} />
+          <Route path="/chat" component={MainPage} />
+        </Switch>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

@@ -35,7 +35,7 @@ function App() {
         if (res.status == 200) history.push("/");
       })
       .catch((error) => {
-        alert(error.response.data.errors[0]);
+        console.log(error);
       });
   };
 
