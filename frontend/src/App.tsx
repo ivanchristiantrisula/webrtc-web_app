@@ -9,7 +9,11 @@ import RegisterPage from "./components/register/";
 import MainPage from "./components/main/main";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 
-const theme = createMuiTheme({});
+const theme = createMuiTheme({
+  palette: {
+    type: "light",
+  },
+});
 
 function App() {
   return (

@@ -45,10 +45,14 @@ app.post("/login", async (req, res) => {
       bcrypt.compare(password, doc.password, (err, result) => {
         if (err) return console.log(err);
         if (result) {
-          let token = require("../library/generateToken")(doc);
+          let userData = {};
+          userData["_id"] = doc._id;
+          userData["name"] = doc.name;
+          userData["email"] = doc.email;
+          userData["username"] = doc.username;
+          let token = require("../library/generateToken")(userData);
+
           res.cookie("token", token, { httpOnly: false });
-          let userData = doc;
-          delete userData["password"];
           res.status(200).send({
             user: userData,
           });
@@ -147,6 +151,46 @@ app.get("/getPendingFriends", (req, res) => {
   }
 });
 
+app.get("/getFriends", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+    if (user) {
+      User.findOne({ _id: user._id }, "friends", (err, docs) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send({ errors: err });
+        }
+
+        res.status(200).send(docs);
+      });
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
+app.get("/getBlocks", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+    if (user) {
+      User.findOne({ _id: user._id }, "blocks", (err, docs) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send({ errors: err });
+        }
+
+        res.status(200).send(docs);
+      });
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
 app.post("/acceptFriendRequest", (req, res) => {
   if (req.cookies) {
     let user = decodeToken(req.cookies.token);
@@ -228,6 +272,7 @@ app.post("/rejectFriendRequest", (req, res) => {
 
 app.get("/testCookie", (req, res) => {
   console.log(req.cookies);
+  console.log(decodeToken(req.cookies.token));
 });
 
 module.exports = app;

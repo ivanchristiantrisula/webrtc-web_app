@@ -24,22 +24,27 @@ export default function (props: any) {
     console.log(textInput); // { current: <h1_object> }
   });
 
+  const sendText = () => {
+    if (text != "") {
+      props.handleSendText(text);
+      setText("");
+      textInput.current.value = "";
+    }
+  };
+
   return (
     <div className={classes.root}>
       <TextField
         label="Send a text"
         inputRef={textInput}
         onChange={(e) => setText(e.target.value)}
-      />
-      <div
-        onClick={() => {
-          if (text != "") {
-            props.handleSendText(text);
-            setText("");
-            textInput.current.value = "";
+        onKeyPress={(e) => {
+          if (e.key === "Enter") {
+            sendText();
           }
         }}
-      >
+      />
+      <div onClick={sendText}>
         <SendIcon />
       </div>
       <input

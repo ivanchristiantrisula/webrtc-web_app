@@ -12,6 +12,7 @@ import SimplePeerFiles from "simple-peer-files";
 import { makeStyles } from "@material-ui/styles";
 import Modal from "@material-ui/core/Modal";
 import SearchUser from "./SearchUser/searchuser";
+import axios from "axios";
 const io = require("socket.io-client");
 require("dotenv").config();
 
@@ -48,10 +49,20 @@ const App = () => {
   let [chatConnectionStatus, setChatConnectionStatus] = useState([]);
   let [openMenu, setOpenMenu] = useState("chat");
   let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
+  let [onlineFriends, setOnlineFriends] = useState({});
 
   const classes = useStyles();
 
   const spf = new SimplePeerFiles();
+
+  useEffect(() => {
+    initSocketListener();
+    fetchUserFriends();
+  }, []);
+
+  useEffect(() => {
+    fetchUserFriends();
+  }, [allUsers]);
 
   const initSocketListener = () => {
     socket.current = io.connect(process.env.REACT_APP_BACKEND_URI, {
@@ -69,7 +80,9 @@ const App = () => {
     });
     socket?.current?.on("allUsers", (users: any) => {
       console.log("Fetched all users");
-      setAllUsers(users);
+      let a = users;
+      delete a[userSocketID.current];
+      setAllUsers(a);
     });
 
     socket?.current?.on("disconnect", () => {
@@ -180,14 +193,6 @@ const App = () => {
     setOpenChatSocket(socketRecipient);
   };
 
-  useEffect(() => {
-    initSocketListener();
-  }, []);
-
-  useEffect(() => {
-    console.log(chats);
-  }, [chats]);
-
   const addChatFromSender = (data: any) => {
     console.log(data);
     let x = chats;
@@ -199,9 +204,36 @@ const App = () => {
     setChats({ ...x });
   };
 
-  const openAddFriendMenu = () => {
-    //setOpenSearchUserModal(true);
-    setOpenMenu("searchUser");
+  const fetchUserFriends = () => {
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URI}/api/user/getFriends`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        let allFriends = res.data.friends;
+
+        //intersects all user array with all friends array to find online ones
+        let intersects = {};
+        for (const key in allUsers) {
+          if (Object.prototype.hasOwnProperty.call(allUsers, key)) {
+            if (key != userSocketID.current) {
+              const element = allUsers[key];
+              console.log(element);
+              console.log(allFriends);
+              let friendIdx = allFriends.findIndex(
+                (friend: any) => friend._id == element._id
+              );
+              if (friendIdx != -1) {
+                intersects[key] = allFriends[friendIdx];
+              }
+            }
+          }
+        }
+        setOnlineFriends(intersects);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -222,7 +254,7 @@ const App = () => {
             }`}
           >
             <Friendlist
-              users={allUsers}
+              users={onlineFriends}
               userID={userSocketID.current}
               setPrivateChatTarget={(e: any) => startPeerConnection(e)}
             />

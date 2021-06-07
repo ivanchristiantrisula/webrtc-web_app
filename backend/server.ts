@@ -54,6 +54,7 @@ io.on("connection", (socket) => {
   );
 
   if (userData) {
+    console.log(userData);
     if (!users[socket.id]) {
       users[socket.id] = userData;
       console.log(userData.email + " connected!");
@@ -62,24 +63,7 @@ io.on("connection", (socket) => {
 
   socket.emit("yourID", socket.id);
 
-  //io.sockets.emit("allUsers", users);
-  let onlineFriends = {};
-
-  for (let i = 0; i < userData.friends.length; i++) {
-    for (const key in users) {
-      if (Object.prototype.hasOwnProperty.call(users, key)) {
-        const element = users[key];
-        if (element._id == userData.friends[i]._id) {
-          onlineFriends[key] = element;
-          if (filteredUsers[socket.id] === undefined)
-            filteredUsers[socket.id] = new Array();
-          filteredUsers[socket.id].push(userData);
-        }
-      }
-    }
-  }
-
-  socket.emit("allUsers", filteredUsers[socket.id]);
+  io.sockets.emit("allUsers", users);
 
   socket.on("disconnect", () => {
     console.log(userData.email + " disconnected!");
