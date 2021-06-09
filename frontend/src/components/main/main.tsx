@@ -13,6 +13,7 @@ import { makeStyles } from "@material-ui/styles";
 import Modal from "@material-ui/core/Modal";
 import SearchUser from "./SearchUser/searchuser";
 import axios from "axios";
+import ChatList from "./Chatlist/ChatList";
 const io = require("socket.io-client");
 require("dotenv").config();
 
@@ -47,7 +48,7 @@ const App = () => {
   let peers: any = useRef({});
   let [chats, setChats] = useState({});
   let [chatConnectionStatus, setChatConnectionStatus] = useState([]);
-  let [openMenu, setOpenMenu] = useState("chat");
+  let [openMenu, setOpenMenu] = useState("friendlist");
   let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
   let [onlineFriends, setOnlineFriends] = useState({});
 
@@ -189,7 +190,9 @@ const App = () => {
   };
 
   const startPeerConnection = (socketRecipient: string) => {
-    addPeer(socketRecipient, true);
+    if (peers.current[socketRecipient] === undefined) {
+      addPeer(socketRecipient, true);
+    }
     setOpenChatSocket(socketRecipient);
   };
 
@@ -250,13 +253,26 @@ const App = () => {
           <Grid
             item
             className={`${classes.friendlist} ${
-              openMenu != "chat" ? classes.hidden : ""
+              openMenu != "friendlist" ? classes.hidden : ""
             }`}
           >
             <Friendlist
               users={onlineFriends}
               userID={userSocketID.current}
               setPrivateChatTarget={(e: any) => startPeerConnection(e)}
+            />
+          </Grid>
+          <Grid
+            item
+            className={`${classes.friendlist} ${
+              openMenu != "chatlist" ? classes.hidden : ""
+            }`}
+          >
+            <ChatList
+              users={onlineFriends}
+              userID={userSocketID.current}
+              setPrivateChatTarget={(e: any) => startPeerConnection(e)}
+              chats={chats}
             />
           </Grid>
           {openMenu == "searchUser" ? (

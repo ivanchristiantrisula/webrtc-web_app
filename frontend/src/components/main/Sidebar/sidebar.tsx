@@ -22,7 +22,11 @@ function App(props: any) {
             flexDirection: "column",
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon
+            onClick={() => {
+              props.openMenu("friendlist");
+            }}
+          >
             <GroupIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"
@@ -39,7 +43,7 @@ function App(props: any) {
         >
           <ListItemIcon
             onClick={() => {
-              props.openMenu("chat");
+              props.openMenu("chatlist");
             }}
           >
             <ChatIcon
