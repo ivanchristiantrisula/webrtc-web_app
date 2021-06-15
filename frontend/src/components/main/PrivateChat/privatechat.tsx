@@ -1,4 +1,3 @@
-import { SignalCellular1BarTwoTone } from "@material-ui/icons";
 import { useEffect, useState } from "react";
 import Peer from "simple-peer";
 import io from "socket.io-client";
@@ -8,10 +7,12 @@ import TopBar from "./topbar";
 import VideoCall from "../VideoCall/videocall";
 import { Socket } from "dgram";
 import SimplePeerFiles from "simple-peer-files";
+import UserPicker from "../UserPicker/UserPicker";
 
 export default (props: any) => {
   let [chat, setChat] = useState<any[]>([]);
   let [videoCall, setVideoCall] = useState(false);
+  let [openUserPickerModal, setOpenUserPickerModal] = useState(false);
 
   useEffect(() => {
     //console.log(props.peer);
@@ -26,7 +27,7 @@ export default (props: any) => {
   const sendChatText = (text: string) => {
     let payload = {
       from: props.userSocketID,
-      kind: "direct", //direct,foward,quote
+      kind: "direct", //direct,foward,quote TODO : GANTI KIND JADI SOURCE
       type: "text",
       message: text,
       timestamp: new Date().getTime(),
@@ -63,8 +64,21 @@ export default (props: any) => {
     });
   };
 
+  const handleFoward = (chat: any, targetSID: any) => {
+    //alert("foward msg");
+    setOpenUserPickerModal(true);
+  };
+
+  const handleReply = (chat: any, targetSID: any) => {
+    alert("reply msg");
+  };
+
+  const handleReport = (chat: any, targetSID: any) => {
+    alert("report msg");
+  };
+
   return (
-    <div>
+    <>
       {videoCall ? (
         <div>
           <VideoCall
@@ -81,11 +95,19 @@ export default (props: any) => {
             }}
           />
           {props.chat !== undefined ? (
-            <div>
+            <>
               {props.chat.map(function (obj: any) {
-                return <ChatBubble data={obj} socketID={props.userSocketID} />;
+                return (
+                  <ChatBubble
+                    data={obj}
+                    socketID={props.userSocketID}
+                    handleReply={handleReply}
+                    handleFoward={handleFoward}
+                    handleReport={handleReport}
+                  />
+                );
               })}
-            </div>
+            </>
           ) : (
             ""
           )}
@@ -100,6 +122,7 @@ export default (props: any) => {
           />
         </div>
       )}
-    </div>
+      <UserPicker isOpen={openUserPickerModal} users={props.users} />
+    </>
   );
 };

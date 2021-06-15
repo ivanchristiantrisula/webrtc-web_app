@@ -294,6 +294,7 @@ const App = () => {
                 addChatFromSender={(data: any) => {
                   addChatFromSender(data);
                 }}
+                users={onlineFriends}
               />
             ) : (
               ""
