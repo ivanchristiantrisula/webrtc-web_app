@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import BottomBar from "./bottomBar";
@@ -13,6 +13,9 @@ export default (props: any) => {
   let [chat, setChat] = useState<any[]>([]);
   let [videoCall, setVideoCall] = useState(false);
   let [openUserPickerModal, setOpenUserPickerModal] = useState(false);
+  //let [forwardChat, setForwardChat] = useState({});
+
+  let forwardChat = useRef({});
 
   useEffect(() => {
     //console.log(props.peer);
@@ -27,7 +30,7 @@ export default (props: any) => {
   const sendChatText = (text: string) => {
     let payload = {
       from: props.userSocketID,
-      kind: "direct", //direct,foward,quote TODO : GANTI KIND JADI SOURCE
+      kind: "direct", //direct,forward,quote TODO : GANTI KIND JADI SOURCE
       type: "text",
       message: text,
       timestamp: new Date().getTime(),
@@ -64,9 +67,10 @@ export default (props: any) => {
     });
   };
 
-  const handleFoward = (chat: any, targetSID: any) => {
-    //alert("foward msg");
+  const handleForward = (chat: any, targetSID: any) => {
+    //alert("forward msg");
     setOpenUserPickerModal(true);
+    forwardChat.current = chat;
   };
 
   const handleReply = (chat: any, targetSID: any) => {
@@ -75,6 +79,19 @@ export default (props: any) => {
 
   const handleReport = (chat: any, targetSID: any) => {
     alert("report msg");
+  };
+
+  const sendForward = (user: any, sid: string) => {
+    let payload = forwardChat.current;
+    payload["origin"] = payload["from"];
+    payload["from"] = props.userSocketID;
+
+    props.sendForward(payload, sid);
+
+    setOpenUserPickerModal(false);
+    //setChat([...chat, payload]);
+    //props.addChatFromSender(payload);
+    //props.peer.send(Buffer.from(JSON.stringify(payload)));
   };
 
   return (
@@ -102,7 +119,7 @@ export default (props: any) => {
                     data={obj}
                     socketID={props.userSocketID}
                     handleReply={handleReply}
-                    handleFoward={handleFoward}
+                    handleForward={handleForward}
                     handleReport={handleReport}
                   />
                 );
@@ -122,7 +139,11 @@ export default (props: any) => {
           />
         </div>
       )}
-      <UserPicker isOpen={openUserPickerModal} users={props.users} />
+      <UserPicker
+        isOpen={openUserPickerModal}
+        users={props.users}
+        onPickedUser={sendForward}
+      />
     </>
   );
 };

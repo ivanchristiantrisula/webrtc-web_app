@@ -26,7 +26,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default (props: { isOpen: boolean; users: any }) => {
+export default (props: {
+  isOpen: boolean;
+  users: any;
+  onPickedUser: (user: any, sid: string) => void;
+}) => {
   let [users, setUsers] = useState([]);
 
   let classes = useStyles();
@@ -40,7 +44,15 @@ export default (props: { isOpen: boolean; users: any }) => {
         <div className={classes.paper}>
           <h2>Foward to</h2>
           {Object.keys(props.users).map((idx: any) => {
-            return <UserCard user={props.users[idx]} />;
+            return (
+              <div
+                onClick={() => {
+                  props.onPickedUser(props.users[idx], idx);
+                }}
+              >
+                <UserCard user={props.users[idx]} />
+              </div>
+            );
           })}
         </div>
       </Modal>

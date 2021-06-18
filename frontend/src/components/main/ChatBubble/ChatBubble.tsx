@@ -68,7 +68,7 @@ export default function (props: any) {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.handleFoward(props.data);
+            props.handleForward(props.data);
           }}
         >
           Foward
