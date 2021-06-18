@@ -196,13 +196,15 @@ const App = () => {
     setOpenChatSocket(socketRecipient);
   };
 
-  const addChatFromSender = (data: any) => {
+  const addChatFromSender = (data: any, sid? : any) => {
     //console.log(data);
+    if(!sid) sid=openChatSocket
+
     let x = chats;
-    if (x[openChatSocket] === undefined) {
-      x[openChatSocket] = new Array(data);
+    if (x[sid] === undefined) {
+      x[sid] = new Array(data);
     } else {
-      x[openChatSocket].push(data);
+      x[sid].push(data);
     }
     setChats({ ...x });
   };
@@ -240,17 +242,20 @@ const App = () => {
   };
 
   const forwardChat = (payload: any, sid: string) => {
+    console.log({payload : payload, sid : sid})
     //check if user is already connected with target peer
     if (peers.current[sid] !== undefined) {
       peers.current[sid].send(Buffer.from(JSON.stringify(payload)));
-      addChatFromSender(payload);
+      
     } else {
       //wait until target peer is successfuly connected, then forward the chat
       startPeerConnection(sid);
       peers.current[sid].on("connect", () => {
         peers.current[sid].send(Buffer.from(JSON.stringify(payload)));
       });
+      
     }
+    addChatFromSender(payload,sid);
   };
 
   return (
