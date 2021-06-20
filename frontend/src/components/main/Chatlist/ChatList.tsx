@@ -27,14 +27,15 @@ export default function (props: any) {
   return (
     <div>
       {Object.keys(props.chats).map((keyName, i) => {
-        return (
-          <div onClick={() => props.setPrivateChatTarget(keyName)}>
-            <ChatCard
-              user={props.users[keyName]}
-              lastMsg={props.chats[keyName].slice(-1)[0]}
-            />
-          </div>
-        );
+        if (props.users[keyName] !== undefined)
+          return (
+            <div onClick={() => props.setPrivateChatTarget(keyName)}>
+              <ChatCard
+                user={props.users[keyName]}
+                lastMsg={props.chats[keyName].slice(-1)[0]}
+              />
+            </div>
+          );
       })}
     </div>
   );
