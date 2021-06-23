@@ -10,6 +10,9 @@ import SimplePeerFiles from "simple-peer-files";
 import UserPicker from "../UserPicker/UserPicker";
 import _ from "underscore";
 import ReplyCard from "./replyCard";
+import { createStyles, Grid, makeStyles } from "@material-ui/core";
+
+const useStyle = makeStyles(()=>createStyles({}))
 
 export default (props: any) => {
   let [chat, setChat] = useState<any[]>([]);
@@ -97,24 +100,20 @@ export default (props: any) => {
     //props.peer.send(Buffer.from(JSON.stringify(payload)));
   };
 
+  
   return (
     <>
-      {videoCall ? (
-        <div>
-          <VideoCall
-            peer={props.peer}
-            userSocketID={props.userSocketID}
-            socket={props.socket}
-          />
-        </div>
-      ) : (
-        <div>
-          <TopBar
+    <Grid container>
+      <Grid item xs={12}>
+      <TopBar
             startVideoCall={() => {
               startVideoCall(true);
             }}
           />
-          {props.chat !== undefined ? (
+      </Grid>
+      <Grid item xs={12}>
+        <div>
+        {props.chat !== undefined ? (
             <>
               {props.chat.map(function (obj: any) {
                 return (
@@ -131,16 +130,29 @@ export default (props: any) => {
           ) : (
             ""
           )}
-          {!_.isEmpty(replyChat) ? <ReplyCard chat={replyChat} /> : null}
-          <BottomBar
+        </div>
+      
+      </Grid>
+      <Grid item xs={12}>{!_.isEmpty(replyChat) ? <ReplyCard chat={replyChat} /> : null}</Grid>
+      <Grid item xs={12}><BottomBar
             handleSendText={(e: string) => {
               sendChatText(e);
             }}
             handleFileUpload={(file: File) => {
               handleFileUpload(file);
             }}
+          /></Grid>
+    </Grid>
+      {videoCall ? (
+        <div>
+          <VideoCall
+            peer={props.peer}
+            userSocketID={props.userSocketID}
+            socket={props.socket}
           />
         </div>
+      ) : (
+        null
       )}
       <UserPicker
         isOpen={openUserPickerModal}
