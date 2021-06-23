@@ -8,11 +8,14 @@ import VideoCall from "../VideoCall/videocall";
 import { Socket } from "dgram";
 import SimplePeerFiles from "simple-peer-files";
 import UserPicker from "../UserPicker/UserPicker";
+import _ from "underscore";
+import ReplyCard from "./replyCard";
 
 export default (props: any) => {
   let [chat, setChat] = useState<any[]>([]);
   let [videoCall, setVideoCall] = useState(false);
   let [openUserPickerModal, setOpenUserPickerModal] = useState(false);
+  let [replyChat, setReplyChat] = useState({});
   //let [forwardChat, setForwardChat] = useState({});
 
   let forwardChat = useRef({});
@@ -74,7 +77,7 @@ export default (props: any) => {
   };
 
   const handleReply = (chat: any, targetSID: any) => {
-    alert("reply msg");
+    setReplyChat(chat);
   };
 
   const handleReport = (chat: any, targetSID: any) => {
@@ -128,7 +131,7 @@ export default (props: any) => {
           ) : (
             ""
           )}
-
+          {!_.isEmpty(replyChat) ? <ReplyCard chat={replyChat} /> : null}
           <BottomBar
             handleSendText={(e: string) => {
               sendChatText(e);
