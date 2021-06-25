@@ -12,9 +12,38 @@ import _ from "underscore";
 import ReplyCard from "./replyCard";
 import { createStyles, Grid, makeStyles } from "@material-ui/core";
 
-const useStyle = makeStyles(()=>createStyles({}))
+const useStyle = makeStyles(() =>
+  createStyles({
+    root: {
+      minHeight: "100%",
+      height: "100%",
+    },
+    topBar: {
+      height: "2.5rem",
+      borderBottom: "solid black 1px",
+    },
+    chatArea: {
+      height: "100%",
+      overflowY: "scroll",
+      top: "0px",
+      position: "relative",
+    },
+
+    replyCard: {
+      height: "50px",
+      position: "absolute",
+    },
+    bottomBar: {
+      position: "absolute",
+      height: "100px",
+      bottom: "0px",
+    },
+  })
+);
 
 export default (props: any) => {
+  let classes = useStyle();
+
   let [chat, setChat] = useState<any[]>([]);
   let [videoCall, setVideoCall] = useState(false);
   let [openUserPickerModal, setOpenUserPickerModal] = useState(false);
@@ -100,49 +129,51 @@ export default (props: any) => {
     //props.peer.send(Buffer.from(JSON.stringify(payload)));
   };
 
-  
   return (
-    <>
-    <Grid container>
-      <Grid item xs={12}>
-      <TopBar
+    <div className={classes.root}>
+      <Grid container className={classes.root}>
+        <Grid item xs={12} className={classes.topBar}>
+          <TopBar
             startVideoCall={() => {
               startVideoCall(true);
             }}
           />
-      </Grid>
-      <Grid item xs={12}>
-        <div>
-        {props.chat !== undefined ? (
-            <>
-              {props.chat.map(function (obj: any) {
-                return (
-                  <ChatBubble
-                    data={obj}
-                    socketID={props.userSocketID}
-                    handleReply={handleReply}
-                    handleForward={handleForward}
-                    handleReport={handleReport}
-                  />
-                );
-              })}
-            </>
-          ) : (
-            ""
-          )}
-        </div>
-      
-      </Grid>
-      <Grid item xs={12}>{!_.isEmpty(replyChat) ? <ReplyCard chat={replyChat} /> : null}</Grid>
-      <Grid item xs={12}><BottomBar
+        </Grid>
+        <Grid item xs={12} className={classes.chatArea}>
+          <div className={classes.chatArea}>
+            {props.chat !== undefined ? (
+              <>
+                {props.chat.map(function (obj: any) {
+                  return (
+                    <ChatBubble
+                      data={obj}
+                      socketID={props.userSocketID}
+                      handleReply={handleReply}
+                      handleForward={handleForward}
+                      handleReport={handleReport}
+                    />
+                  );
+                })}
+              </>
+            ) : (
+              ""
+            )}
+          </div>
+        </Grid>
+        <Grid item xs={12} className={classes.replyCard}>
+          {!_.isEmpty(replyChat) ? <ReplyCard chat={replyChat} /> : null}
+        </Grid>
+        <Grid item xs={12} className={classes.bottomBar}>
+          <BottomBar
             handleSendText={(e: string) => {
               sendChatText(e);
             }}
             handleFileUpload={(file: File) => {
               handleFileUpload(file);
             }}
-          /></Grid>
-    </Grid>
+          />
+        </Grid>
+      </Grid>
       {videoCall ? (
         <div>
           <VideoCall
@@ -151,14 +182,12 @@ export default (props: any) => {
             socket={props.socket}
           />
         </div>
-      ) : (
-        null
-      )}
+      ) : null}
       <UserPicker
         isOpen={openUserPickerModal}
         users={props.users}
         onPickedUser={sendForward}
       />
-    </>
+    </div>
   );
 };

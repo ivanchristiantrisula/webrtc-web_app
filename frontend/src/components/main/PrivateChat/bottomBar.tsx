@@ -7,8 +7,6 @@ import { useRef, useState, useLayoutEffect } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      position: "absolute",
-      bottom: "0px",
       width: "100%",
     },
   })

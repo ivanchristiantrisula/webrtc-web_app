@@ -4,7 +4,6 @@ import React from "react";
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: "100px",
       minWidth: "100%",
     },
   })
