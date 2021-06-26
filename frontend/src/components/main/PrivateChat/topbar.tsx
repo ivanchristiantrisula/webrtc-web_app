@@ -6,6 +6,7 @@ const useStyles = makeStyles(() =>
     root: {
       top: "0px",
       width: "100%",
+      minWidth: "100%",
     },
   })
 );

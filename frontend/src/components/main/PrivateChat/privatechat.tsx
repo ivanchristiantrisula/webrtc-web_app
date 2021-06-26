@@ -10,33 +10,40 @@ import SimplePeerFiles from "simple-peer-files";
 import UserPicker from "../UserPicker/UserPicker";
 import _ from "underscore";
 import ReplyCard from "./replyCard";
-import { createStyles, Grid, makeStyles } from "@material-ui/core";
+import { Box, createStyles, Grid, makeStyles } from "@material-ui/core";
 
 const useStyle = makeStyles(() =>
   createStyles({
     root: {
       minHeight: "100%",
       height: "100%",
+      width: "100%",
     },
     topBar: {
       height: "2.5rem",
       borderBottom: "solid black 1px",
+      width: "100%",
+      minWidth: "100%",
+      backgroundColor: "yellow",
     },
     chatArea: {
-      height: "100%",
+      backgroundColor: "green",
+      width: "100%",
+      minWidth: "100%",
       overflowY: "scroll",
-      top: "0px",
-      position: "relative",
+    },
+    chatContainer1: {
+      width: "100%",
     },
 
     replyCard: {
       height: "50px",
-      position: "absolute",
+      width: "100%",
     },
     bottomBar: {
-      position: "absolute",
       height: "100px",
       bottom: "0px",
+      width: "100%",
     },
   })
 );
@@ -128,19 +135,28 @@ export default (props: any) => {
     //props.addChatFromSender(payload);
     //props.peer.send(Buffer.from(JSON.stringify(payload)));
   };
-
+  const renderReplyCard = () => {
+    if (!_.isEmpty(replyChat)) {
+      return (
+        <Box order={3} className={classes.replyCard}>
+          <ReplyCard chat={replyChat} />
+        </Box>
+      );
+    }
+    return;
+  };
   return (
     <div className={classes.root}>
-      <Grid container className={classes.root}>
-        <Grid item xs={12} className={classes.topBar}>
+      <Box display="flex" className={classes.root} flexDirection="column">
+        <Box order={1} className={classes.topBar}>
           <TopBar
             startVideoCall={() => {
               startVideoCall(true);
             }}
           />
-        </Grid>
-        <Grid item xs={12} className={classes.chatArea}>
-          <div className={classes.chatArea}>
+        </Box>
+        <Box order={2} className={classes.chatArea} flexGrow={1}>
+          <div className={classes.chatContainer1}>
             {props.chat !== undefined ? (
               <>
                 {props.chat.map(function (obj: any) {
@@ -159,11 +175,9 @@ export default (props: any) => {
               ""
             )}
           </div>
-        </Grid>
-        <Grid item xs={12} className={classes.replyCard}>
-          {!_.isEmpty(replyChat) ? <ReplyCard chat={replyChat} /> : null}
-        </Grid>
-        <Grid item xs={12} className={classes.bottomBar}>
+        </Box>
+        {renderReplyCard()}
+        <Box order={4} className={classes.bottomBar}>
           <BottomBar
             handleSendText={(e: string) => {
               sendChatText(e);
@@ -172,8 +186,8 @@ export default (props: any) => {
               handleFileUpload(file);
             }}
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
       {videoCall ? (
         <div>
           <VideoCall
