@@ -77,6 +77,12 @@ export default (props: any) => {
       message: text,
       timestamp: new Date().getTime(),
     };
+    if(_.isEmpty(replyChat)){
+      payload["reply"] = null
+    }else{
+      payload["reply"] = replyChat;
+      setReplyChat({})
+    }
     //setChat([...chat, payload]);
     props.addChatFromSender(payload);
     props.peer.send(Buffer.from(JSON.stringify(payload)));

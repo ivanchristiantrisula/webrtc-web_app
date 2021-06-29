@@ -4,6 +4,7 @@ import React from "react";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Typography from "@material-ui/core/Typography";
+import ReplyBubble from "./replyBubble";
 
 export default function (props: any) {
   let [mouseX, setMouseX] = useState(null as number);
@@ -38,6 +39,13 @@ export default function (props: any) {
     setMouseY(event.clientY - 4);
   };
 
+  const renderReplyBubble = () => {
+    if (props.data.reply) {
+      return <ReplyBubble chat={props.data.reply} />;
+    }
+    return;
+  };
+
   return (
     <>
       <ul>
@@ -45,6 +53,7 @@ export default function (props: any) {
           className={props.data.from == props.socketID ? "me" : "them"}
           onContextMenu={handleContextMenu}
         >
+          {renderReplyBubble()}
           {renderBubbleData()}
         </li>
       </ul>
@@ -62,6 +71,7 @@ export default function (props: any) {
         <MenuItem
           onClick={() => {
             props.handleReply(props.data);
+            handleClose();
           }}
         >
           Reply
@@ -69,6 +79,7 @@ export default function (props: any) {
         <MenuItem
           onClick={() => {
             props.handleForward(props.data);
+            handleClose();
           }}
         >
           Foward
@@ -76,6 +87,7 @@ export default function (props: any) {
         <MenuItem
           onClick={() => {
             props.handleReport(props.data);
+            handleClose();
           }}
         >
           Report
