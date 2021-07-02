@@ -1,29 +1,49 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-
 import { Switch, Route, BrowserRouter } from "react-router-dom";
-
 import LandingPage from "./components/landing/";
 import RegisterPage from "./components/register/";
 import MainPage from "./components/main/main";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import {
+  createMuiTheme,
+  makeStyles,
+  Snackbar,
+  ThemeProvider,
+} from "@material-ui/core";
+import { SnackbarProvider } from "notistack";
 
 const theme = createMuiTheme({
   palette: {
     type: "light",
   },
 });
+const useStyles = makeStyles({
+  snackbar: {
+    whiteSpace: "pre-line",
+  },
+});
 
 function App() {
+  const classes = useStyles();
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <Switch>
-          <Route exact path="/" component={LandingPage} />
-          <Route path="/register" component={RegisterPage} />
-          <Route path="/chat" component={MainPage} />
-        </Switch>
+        <SnackbarProvider
+          maxSnack={3}
+          classes={{
+            variantSuccess: classes.snackbar,
+            variantError: classes.snackbar,
+            variantWarning: classes.snackbar,
+            variantInfo: classes.snackbar,
+          }}
+        >
+          <Switch>
+            <Route exact path="/" component={LandingPage} />
+            <Route path="/register" component={RegisterPage} />
+            <Route path="/chat" component={MainPage} />
+          </Switch>
+        </SnackbarProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

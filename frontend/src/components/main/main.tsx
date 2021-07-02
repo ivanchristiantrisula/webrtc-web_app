@@ -6,14 +6,14 @@ import Friendlist from "./Friendlist/friendlist";
 import _, { omit } from "underscore";
 import Peer from "simple-peer";
 import PrivateChat from "./PrivateChat/privatechat";
-import { convertToObject } from "typescript";
-import streamSaver from "streamsaver";
 import SimplePeerFiles from "simple-peer-files";
 import { makeStyles } from "@material-ui/styles";
 import Modal from "@material-ui/core/Modal";
 import SearchUser from "./SearchUser/searchuser";
 import axios from "axios";
 import ChatList from "./Chatlist/ChatList";
+import { useSnackbar } from "notistack";
+
 const io = require("socket.io-client");
 require("dotenv").config();
 
@@ -52,6 +52,7 @@ const App = () => {
   let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
   let [onlineFriends, setOnlineFriends] = useState({});
 
+  const { enqueueSnackbar } = useSnackbar();
   const classes = useStyles();
 
   const spf = new SimplePeerFiles();
@@ -179,6 +180,15 @@ const App = () => {
         }
         setChats({ ...x });
       }
+      console.log(allUsers);
+      // enqueueSnackbar(
+      //   `${JSON.parse(data.toString()).fromUsername.name} \n ${
+      //     parsedData.message
+      //   }`,
+      //   {
+      //     variant: "success",
+      //   }
+      // );
     });
 
     peers.current[socket_id].on("connect", () => {
@@ -196,9 +206,9 @@ const App = () => {
     setOpenChatSocket(socketRecipient);
   };
 
-  const addChatFromSender = (data: any, sid? : any) => {
+  const addChatFromSender = (data: any, sid?: any) => {
     //console.log(data);
-    if(!sid) sid=openChatSocket
+    if (!sid) sid = openChatSocket;
 
     let x = chats;
     if (x[sid] === undefined) {
@@ -223,8 +233,6 @@ const App = () => {
           if (Object.prototype.hasOwnProperty.call(allUsers, key)) {
             if (key != userSocketID.current) {
               const element = allUsers[key];
-              console.log(element);
-              console.log(allFriends);
               let friendIdx = allFriends.findIndex(
                 (friend: any) => friend._id == element._id
               );
@@ -242,20 +250,18 @@ const App = () => {
   };
 
   const forwardChat = (payload: any, sid: string) => {
-    console.log({payload : payload, sid : sid})
+    console.log({ payload: payload, sid: sid });
     //check if user is already connected with target peer
     if (peers.current[sid] !== undefined) {
       peers.current[sid].send(Buffer.from(JSON.stringify(payload)));
-      
     } else {
       //wait until target peer is successfuly connected, then forward the chat
       startPeerConnection(sid);
       peers.current[sid].on("connect", () => {
         peers.current[sid].send(Buffer.from(JSON.stringify(payload)));
       });
-      
     }
-    addChatFromSender(payload,sid);
+    addChatFromSender(payload, sid);
   };
 
   return (

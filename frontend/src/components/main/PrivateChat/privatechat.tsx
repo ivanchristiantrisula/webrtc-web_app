@@ -24,10 +24,8 @@ const useStyle = makeStyles(() =>
       borderBottom: "solid black 1px",
       width: "100%",
       minWidth: "100%",
-      backgroundColor: "yellow",
     },
     chatArea: {
-      backgroundColor: "green",
       width: "100%",
       minWidth: "100%",
       overflowY: "scroll",
@@ -70,18 +68,20 @@ export default (props: any) => {
   }, []);
 
   const sendChatText = (text: string) => {
+    console.log(props);
     let payload = {
+      fromUsername: props.users[props.recipientSocketID],
       from: props.userSocketID,
       kind: "direct", //direct,forward,quote TODO : GANTI KIND JADI SOURCE
       type: "text",
       message: text,
       timestamp: new Date().getTime(),
     };
-    if(_.isEmpty(replyChat)){
-      payload["reply"] = null
-    }else{
+    if (_.isEmpty(replyChat)) {
+      payload["reply"] = null;
+    } else {
       payload["reply"] = replyChat;
-      setReplyChat({})
+      setReplyChat({});
     }
     //setChat([...chat, payload]);
     props.addChatFromSender(payload);
