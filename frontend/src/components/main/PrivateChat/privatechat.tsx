@@ -70,7 +70,7 @@ export default (props: any) => {
   const sendChatText = (text: string) => {
     console.log(props);
     let payload = {
-      fromUsername: props.users[props.recipientSocketID],
+      senderInfo: props.myInfo,
       from: props.userSocketID,
       kind: "direct", //direct,forward,quote TODO : GANTI KIND JADI SOURCE
       type: "text",
@@ -100,6 +100,7 @@ export default (props: any) => {
     const spf = new SimplePeerFiles();
 
     props.addChatFromSender({
+      senderInfo: props.myInfo,
       from: props.userSocketID,
       kind: "direct",
       type: file.type,
@@ -133,6 +134,7 @@ export default (props: any) => {
     let payload = forwardChat.current;
     payload["origin"] = payload["from"];
     payload["from"] = props.userSocketID;
+    payload["senderInfo"] = props.myInfo;
 
     props.sendForward(payload, sid);
 

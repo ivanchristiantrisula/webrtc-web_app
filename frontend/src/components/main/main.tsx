@@ -83,7 +83,6 @@ const App = () => {
     socket?.current?.on("allUsers", (users: any) => {
       console.log("Fetched all users");
       let a = users;
-      delete a[userSocketID.current];
       setAllUsers(a);
     });
 
@@ -150,6 +149,7 @@ const App = () => {
         console.log(file);
         //alert("done trf");
         let payload = {
+          senderInfo: allUsers[socket_id],
           from: socket_id,
           kind: "direct",
           type: file.type,
@@ -180,15 +180,13 @@ const App = () => {
         }
         setChats({ ...x });
       }
-      console.log(allUsers);
-      // enqueueSnackbar(
-      //   `${JSON.parse(data.toString()).fromUsername.name} \n ${
-      //     parsedData.message
-      //   }`,
-      //   {
-      //     variant: "success",
-      //   }
-      // );
+      console.log(parsedData);
+      enqueueSnackbar(
+        `${parsedData.senderInfo.name} \n ${parsedData.message}`,
+        {
+          variant: "success",
+        }
+      );
     });
 
     peers.current[socket_id].on("connect", () => {
@@ -321,6 +319,7 @@ const App = () => {
                 }}
                 users={onlineFriends}
                 sendForward={forwardChat}
+                myInfo={allUsers[userSocketID.current]}
               />
             ) : (
               ""
