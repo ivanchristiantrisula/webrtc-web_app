@@ -35,16 +35,6 @@ export default function (props: any) {
     //console.log(props);
   }, []);
 
-  const renderRB = () => {
-    if (props.multiple) {
-      return (
-        <Grid item xs={2}>
-          <Radio checked={props.selected}></Radio>
-        </Grid>
-      );
-    }
-  };
-
   return (
     <div style={{ height: "auto" }}>
       <Grid container spacing={1} className={classes.root}>
@@ -56,7 +46,9 @@ export default function (props: any) {
         <Grid item xs={8}>
           {props.user.name}
         </Grid>
-        {renderRB()}
+        <Grid item xs={2}>
+          <Radio checked={props.selected}></Radio>
+        </Grid>
       </Grid>
     </div>
   );

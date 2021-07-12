@@ -5,6 +5,7 @@ import UserPicker from "../UserPicker/UserPicker";
 export default (props: { friends: any }) => {
   const peers = useRef({});
   const userSockets = useRef([]);
+  const [openUserPicker, setOpenUserPicker] = useState(true);
 
   useEffect(() => {}, []);
 
@@ -13,13 +14,14 @@ export default (props: { friends: any }) => {
   return (
     <>
       <UserPicker
-        isOpen={true}
+        isOpen={openUserPicker}
         title={"Invite to meeting"}
         multipleUser={true}
         users={props.friends}
         onPickedUser={() => {
           alert("Picked");
         }}
+        handleClose={() => setOpenUserPicker(false)}
       />
     </>
   );

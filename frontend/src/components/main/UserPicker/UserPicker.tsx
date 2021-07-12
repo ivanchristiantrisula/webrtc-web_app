@@ -1,8 +1,17 @@
 import UserCard from "./UserCard";
 import Modal from "@material-ui/core/Modal";
 import { useEffect, useState } from "react";
-import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import {
+  createStyles,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  makeStyles,
+  Theme,
+} from "@material-ui/core";
 import _ from "underscore";
+import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,9 +39,10 @@ const useStyles = makeStyles((theme: Theme) =>
 export default (props: {
   isOpen: boolean;
   users: any;
-  onPickedUser: (user: any, sid: string) => void;
+  onPickedUser: (users: {}) => void;
   title: string;
   multipleUser: boolean;
+  handleClose: () => void;
 }) => {
   let [pickedUsers, setPickedUsers] = useState({});
   let classes = useStyles();
@@ -52,21 +62,32 @@ export default (props: {
 
       setPickedUsers({ ...x });
     } else {
-      props.onPickedUser(props.users[idx], idx);
+      let x = {};
+      x[idx] = props.users[idx];
+      setPickedUsers({ ...x });
     }
+  };
+
+  const handleConfirm = () => {
+    props.onPickedUser(pickedUsers);
+  };
+
+  const handleClose = () => {
+    props.handleClose();
   };
 
   return (
     <>
-      <Modal open={props.isOpen}>
-        <div className={classes.paper}>
-          <h2>{props.title}</h2>
+      <Dialog open={props.isOpen}>
+        <DialogTitle>{props.title}</DialogTitle>
+        <DialogContent>
           {Object.keys(props.users).map((idx: any) => {
             return (
               <div
                 onClick={() => {
                   handleClick(idx);
                 }}
+                style={{ width: "500px" }}
               >
                 <UserCard
                   user={props.users[idx]}
@@ -76,8 +97,16 @@ export default (props: {
               </div>
             );
           })}
-        </div>
-      </Modal>
+        </DialogContent>
+        <DialogActions>
+          <Button color="primary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button color="primary" onClick={handleConfirm}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

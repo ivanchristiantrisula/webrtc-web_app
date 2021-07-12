@@ -130,13 +130,15 @@ export default (props: any) => {
     alert("report msg");
   };
 
-  const sendForward = (user: any, sid: string) => {
-    let payload = forwardChat.current;
-    payload["origin"] = payload["from"];
-    payload["from"] = props.userSocketID;
-    payload["senderInfo"] = props.myInfo;
+  const sendForward = (users: {}) => {
+    for (const key in users) {
+      let payload = forwardChat.current;
+      payload["origin"] = payload["from"];
+      payload["from"] = props.userSocketID;
+      payload["senderInfo"] = props.myInfo;
 
-    props.sendForward(payload, sid);
+      props.sendForward(payload, key);
+    }
 
     setOpenUserPickerModal(false);
     //setChat([...chat, payload]);
@@ -209,8 +211,9 @@ export default (props: any) => {
         isOpen={openUserPickerModal}
         users={props.users}
         onPickedUser={sendForward}
-        multipleUser={false}
+        multipleUser={true}
         title="Foward"
+        handleClose={() => setOpenUserPickerModal(false)}
       />
     </div>
   );
