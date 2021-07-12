@@ -13,6 +13,7 @@ import SearchUser from "./SearchUser/searchuser";
 import axios from "axios";
 import ChatList from "./Chatlist/ChatList";
 import { useSnackbar } from "notistack";
+import Meeting from "./Meeting/main";
 
 const io = require("socket.io-client");
 require("dotenv").config();
@@ -51,6 +52,7 @@ const App = () => {
   let [openMenu, setOpenMenu] = useState("friendlist");
   let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
   let [onlineFriends, setOnlineFriends] = useState({});
+  let [meetingMode, setMeetingMode] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
   const classes = useStyles();
@@ -305,7 +307,13 @@ const App = () => {
           ) : (
             ""
           )}
-
+          {openMenu == "meeting" ? (
+            <Grid item xs className={classes.chatContainer}>
+              <Meeting friends={onlineFriends} />
+            </Grid>
+          ) : (
+            ""
+          )}
           <Grid item xs className={classes.chatContainer}>
             {openChatSocket != "" ? (
               <PrivateChat
@@ -325,6 +333,7 @@ const App = () => {
               ""
             )}
           </Grid>
+          =
         </Grid>
       </Box>
     </>

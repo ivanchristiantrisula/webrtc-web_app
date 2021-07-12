@@ -2,6 +2,7 @@ import { createStyles, makeStyles, Theme, Grid } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import { deepOrange, deepPurple } from "@material-ui/core/colors";
 import { useEffect } from "react";
+import Radio, { RadioProps } from "@material-ui/core/Radio";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,6 +35,16 @@ export default function (props: any) {
     //console.log(props);
   }, []);
 
+  const renderRB = () => {
+    if (props.multiple) {
+      return (
+        <Grid item xs={2}>
+          <Radio checked={props.selected}></Radio>
+        </Grid>
+      );
+    }
+  };
+
   return (
     <div style={{ height: "auto" }}>
       <Grid container spacing={1} className={classes.root}>
@@ -42,7 +53,10 @@ export default function (props: any) {
             {props.user.name.charAt(0)}
           </Avatar>
         </Grid>
-        <Grid item>{props.user.name}</Grid>
+        <Grid item xs={8}>
+          {props.user.name}
+        </Grid>
+        {renderRB()}
       </Grid>
     </div>
   );

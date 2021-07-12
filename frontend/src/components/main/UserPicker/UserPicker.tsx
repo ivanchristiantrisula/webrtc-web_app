@@ -2,6 +2,7 @@ import UserCard from "./UserCard";
 import Modal from "@material-ui/core/Modal";
 import { useEffect, useState } from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import _ from "underscore";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,27 +31,48 @@ export default (props: {
   isOpen: boolean;
   users: any;
   onPickedUser: (user: any, sid: string) => void;
+  title: string;
+  multipleUser: boolean;
 }) => {
-  let [users, setUsers] = useState([]);
-
+  let [pickedUsers, setPickedUsers] = useState({});
   let classes = useStyles();
+
   useEffect(() => {
     //console.log(props);
-    setUsers(props.users);
   }, []);
+
+  const handleClick = (idx: string) => {
+    if (props.multipleUser) {
+      let x = pickedUsers;
+      if (_.isUndefined(x[idx])) {
+        x[idx] = props.users[idx];
+      } else {
+        x[idx] = undefined;
+      }
+
+      setPickedUsers({ ...x });
+    } else {
+      props.onPickedUser(props.users[idx], idx);
+    }
+  };
+
   return (
     <>
       <Modal open={props.isOpen}>
         <div className={classes.paper}>
-          <h2>Foward to</h2>
+          <h2>{props.title}</h2>
           {Object.keys(props.users).map((idx: any) => {
             return (
               <div
                 onClick={() => {
-                  props.onPickedUser(props.users[idx], idx);
+                  handleClick(idx);
                 }}
               >
-                <UserCard user={props.users[idx]} />
+                <UserCard
+                  user={props.users[idx]}
+                  multiple={props.multipleUser}
+                  selected={!_.isUndefined(pickedUsers[idx])}
+                />
               </div>
             );
           })}

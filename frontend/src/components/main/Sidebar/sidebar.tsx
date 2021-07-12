@@ -9,6 +9,7 @@ import React from "react";
 import GroupIcon from "@material-ui/icons/Group";
 import ChatIcon from "@material-ui/icons/Chat";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import PersonIcon from "@material-ui/icons/Person";
 
 function App(props: any) {
   return (
@@ -27,7 +28,7 @@ function App(props: any) {
               props.openMenu("friendlist");
             }}
           >
-            <GroupIcon
+            <PersonIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"
             />
@@ -66,6 +67,25 @@ function App(props: any) {
             }}
           >
             <PersonAddIcon
+              style={{ color: "white", display: "block", margin: "auto" }}
+              fontSize="large"
+            />
+          </ListItemIcon>
+        </ListItem>
+        <ListItem
+          button
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+          }}
+        >
+          <ListItemIcon
+            onClick={() => {
+              props.openMenu("meeting");
+            }}
+          >
+            <GroupIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"
             />

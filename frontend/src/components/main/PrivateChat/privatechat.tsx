@@ -209,6 +209,8 @@ export default (props: any) => {
         isOpen={openUserPickerModal}
         users={props.users}
         onPickedUser={sendForward}
+        multipleUser={false}
+        title="Foward"
       />
     </div>
   );
