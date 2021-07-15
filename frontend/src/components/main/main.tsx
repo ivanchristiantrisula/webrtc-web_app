@@ -1,6 +1,5 @@
 import { Grid, Paper, Box, createStyles, Theme } from "@material-ui/core";
 import { useState, useEffect, useRef } from "react";
-import styles from "./main.module.css";
 import Sidebar from "./Sidebar/sidebar";
 import Friendlist from "./Friendlist/friendlist";
 import _, { omit } from "underscore";
@@ -8,12 +7,13 @@ import Peer from "simple-peer";
 import PrivateChat from "./PrivateChat/privatechat";
 import SimplePeerFiles from "simple-peer-files";
 import { makeStyles } from "@material-ui/styles";
-import Modal from "@material-ui/core/Modal";
 import SearchUser from "./SearchUser/searchuser";
 import axios from "axios";
 import ChatList from "./Chatlist/ChatList";
 import { useSnackbar } from "notistack";
 import Meeting from "./Meeting/main";
+import AlertDialog from "./AlertDialog"
+import { string } from "yargs";
 
 const io = require("socket.io-client");
 require("dotenv").config();
@@ -53,6 +53,8 @@ const App = () => {
   let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
   let [onlineFriends, setOnlineFriends] = useState({});
   let [meetingMode, setMeetingMode] = useState(false);
+
+  let [alertDialogProps, setAlertDialogProps] = useState({open : false, title : "", body : "", positiveTitle : "", negativeTitle : ""})
 
   const { enqueueSnackbar } = useSnackbar();
   const classes = useStyles();
@@ -105,6 +107,17 @@ const App = () => {
         setOpenChatSocket(data.from);
       }
     });
+
+    socket.current.on("meetingInvitation", (data : any)=>{
+      alert("Masok")
+      setAlertDialogProps({
+        open : true,
+        title : "You are invited to join a meeting",
+        body : "User XXX invited you to join their meeting.",
+        positiveTitle : "Join meeting",
+        negativeTitle : "Decline Meeting"
+      })
+    })
 
     //close socket connection when tab is closed by user
     window.onbeforeunload = function () {
@@ -309,7 +322,7 @@ const App = () => {
           )}
           {openMenu == "meeting" ? (
             <Grid item xs className={classes.chatContainer}>
-              <Meeting friends={onlineFriends} socket={socket} />
+              <Meeting friends={onlineFriends} socket={socket.current} />
             </Grid>
           ) : (
             ""
@@ -336,6 +349,16 @@ const App = () => {
           =
         </Grid>
       </Box>
+      <AlertDialog 
+        open={alertDialogProps.open} 
+        title={alertDialogProps.title} 
+        body={alertDialogProps.body} 
+        posActionButtonName={alertDialogProps.positiveTitle} 
+        negActionButtonName={alertDialogProps.negativeTitle} 
+        onPosClicked={()=>{alert("join")}} 
+        onNegClicked={()=>alert("declined")} 
+        handleClose={()=>setAlertDialogProps({open : false, title : "", body : "", positiveTitle : "", negativeTitle : ""})} 
+      />
     </>
   );
 };
