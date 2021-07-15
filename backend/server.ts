@@ -39,6 +39,7 @@ const server = http.createServer(app);
 
 let users = {};
 let filteredUsers = {};
+let meetingRooms = {};
 
 const io = socket(server, {
   cors: {
@@ -81,6 +82,16 @@ io.on("connection", (socket) => {
   });
   socket.on("endVideoCall", (data) => {
     io.to(data.to).emit("endVideoCall");
+  });
+
+  //MEETING SOCKET
+
+  socket.on("inviteUserToMeeting", (data) => {
+    io.to(data.to).emit("meetingInvitation");
+  });
+
+  socket.on("respondMeetingInvitation", (data) => {
+    io.to(data.to).emit("meetingInvitationResponse", data.response);
   });
 });
 

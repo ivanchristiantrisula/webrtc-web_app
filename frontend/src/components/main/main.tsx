@@ -309,7 +309,7 @@ const App = () => {
           )}
           {openMenu == "meeting" ? (
             <Grid item xs className={classes.chatContainer}>
-              <Meeting friends={onlineFriends} />
+              <Meeting friends={onlineFriends} socket={socket} />
             </Grid>
           ) : (
             ""
