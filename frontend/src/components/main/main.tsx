@@ -12,7 +12,7 @@ import axios from "axios";
 import ChatList from "./Chatlist/ChatList";
 import { useSnackbar } from "notistack";
 import Meeting from "./Meeting/main";
-import AlertDialog from "./AlertDialog"
+import AlertDialog from "./AlertDialog";
 import { string } from "yargs";
 
 const io = require("socket.io-client");
@@ -40,6 +40,17 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+const initState = {
+  meetingProps: {
+    open: false,
+    title: "",
+    body: "",
+    positiveTitle: "",
+    negativeTitle: "",
+    fromSocket: "",
+  },
+};
+
 const App = () => {
   let [allUsers, setAllUsers] = useState({});
   let socket: any = useRef();
@@ -54,7 +65,9 @@ const App = () => {
   let [onlineFriends, setOnlineFriends] = useState({});
   let [meetingMode, setMeetingMode] = useState(false);
 
-  let [alertDialogProps, setAlertDialogProps] = useState({open : false, title : "", body : "", positiveTitle : "", negativeTitle : ""})
+  let [alertDialogProps, setAlertDialogProps] = useState(
+    initState.meetingProps
+  );
 
   const { enqueueSnackbar } = useSnackbar();
   const classes = useStyles();
@@ -108,16 +121,16 @@ const App = () => {
       }
     });
 
-    socket.current.on("meetingInvitation", (data : any)=>{
-      alert("Masok")
+    socket.current.on("meetingInvitation", (data: any) => {
       setAlertDialogProps({
-        open : true,
-        title : "You are invited to join a meeting",
-        body : "User XXX invited you to join their meeting.",
-        positiveTitle : "Join meeting",
-        negativeTitle : "Decline Meeting"
-      })
-    })
+        open: true,
+        title: "You are invited to join a meeting",
+        body: "User XXX invited you to join their meeting.",
+        positiveTitle: "Join meeting",
+        negativeTitle: "Decline Meeting",
+        fromSocket: data.from,
+      });
+    });
 
     //close socket connection when tab is closed by user
     window.onbeforeunload = function () {
@@ -277,6 +290,13 @@ const App = () => {
     addChatFromSender(payload, sid);
   };
 
+  const handleMeetingInviteAccepted = (targetSID: string) => {
+    socket.current.emit("respondMeetingInvitation", {
+      response: true,
+      to: targetSID,
+    });
+  };
+
   return (
     <>
       <Box height="100vh">
@@ -322,7 +342,11 @@ const App = () => {
           )}
           {openMenu == "meeting" ? (
             <Grid item xs className={classes.chatContainer}>
-              <Meeting friends={onlineFriends} socket={socket.current} />
+              <Meeting
+                friends={onlineFriends}
+                socket={socket.current}
+                userSocketID={userSocketID.current}
+              />
             </Grid>
           ) : (
             ""
@@ -349,15 +373,18 @@ const App = () => {
           =
         </Grid>
       </Box>
-      <AlertDialog 
-        open={alertDialogProps.open} 
-        title={alertDialogProps.title} 
-        body={alertDialogProps.body} 
-        posActionButtonName={alertDialogProps.positiveTitle} 
-        negActionButtonName={alertDialogProps.negativeTitle} 
-        onPosClicked={()=>{alert("join")}} 
-        onNegClicked={()=>alert("declined")} 
-        handleClose={()=>setAlertDialogProps({open : false, title : "", body : "", positiveTitle : "", negativeTitle : ""})} 
+      <AlertDialog
+        open={alertDialogProps.open}
+        title={alertDialogProps.title}
+        body={alertDialogProps.body}
+        posActionButtonName={alertDialogProps.positiveTitle}
+        negActionButtonName={alertDialogProps.negativeTitle}
+        onPosClicked={() => {
+          setAlertDialogProps(initState.meetingProps);
+          handleMeetingInviteAccepted(alertDialogProps.fromSocket);
+        }}
+        onNegClicked={() => alert("declined")}
+        handleClose={() => setAlertDialogProps(initState.meetingProps)}
       />
     </>
   );

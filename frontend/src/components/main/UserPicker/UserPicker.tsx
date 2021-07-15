@@ -99,7 +99,7 @@ export default (props: {
           })}
         </DialogContent>
         <DialogActions>
-          <Button color="primary" onClick={handleClose}>
+          <Button color="secondary" onClick={handleClose}>
             Close
           </Button>
           <Button color="primary" onClick={handleConfirm}>

@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
   //MEETING SOCKET
 
   socket.on("inviteUserToMeeting", (data) => {
-    io.to(data.to).emit("meetingInvitation", data);
+    io.to(data.to).emit("meetingInvitation", { data, from: socket.id });
   });
 
   socket.on("respondMeetingInvitation", (data) => {

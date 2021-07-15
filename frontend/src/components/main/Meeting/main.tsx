@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import Peer from "simple-peer";
 import UserPicker from "../UserPicker/UserPicker";
 
-export default (props: { friends: any; socket: any }) => {
+export default (props: { friends: any; socket: any; userSocketID: string }) => {
   const peers = useRef({});
   const userSockets = useRef([]);
   const [openUserPicker, setOpenUserPicker] = useState(true);
@@ -17,6 +17,7 @@ export default (props: { friends: any; socket: any }) => {
   const createPeer = () => {};
 
   const inviteUser = (users: {}) => {
+    setOpenUserPicker(false);
     for (const key in users) {
       if (Object.prototype.hasOwnProperty.call(users, key)) {
         const element = users[key];
