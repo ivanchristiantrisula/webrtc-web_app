@@ -1,4 +1,5 @@
 import express from "express";
+import { Socket } from "socket.io";
 const dotenv = require("dotenv").config();
 const mongoose = require("mongoose");
 const userRouter = require("./routes/user");
@@ -6,6 +7,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const http = require("http");
 const socket = require("socket.io");
+const randomstring = require("randomstring");
 
 let userModel = require("./models/userModel");
 
@@ -49,13 +51,12 @@ const io = socket(server, {
   },
 });
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: Socket) => {
   let userData = require("./library/decodeToken")(
-    socket.handshake.headers.cookie.replace("token=", "")
+    socket?.handshake?.headers?.cookie?.replace("token=", "")
   );
 
   if (userData) {
-    console.log(userData);
     if (!users[socket.id]) {
       users[socket.id] = userData;
       console.log(userData.email + " connected!");
@@ -73,7 +74,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("transferSDP", (data) => {
-    console.log(data);
     io.to(data.to).emit("sdpTransfer", data);
   });
 
@@ -87,11 +87,37 @@ io.on("connection", (socket) => {
   //MEETING SOCKET
 
   socket.on("inviteUserToMeeting", (data) => {
-    io.to(data.to).emit("meetingInvitation", { data, from: socket.id });
+    io.to(data.to).emit("meetingInvitation", {
+      meetingID: data.meetingID,
+      from: socket.id,
+    });
   });
 
   socket.on("respondMeetingInvitation", (data) => {
     io.to(data.to).emit("meetingInvitationResponse", data.response);
+
+    if (data.response) {
+      meetingRooms[data.meetingID].push(socket.id);
+
+      meetingRooms[data.meetingID].forEach((socketID) => {
+        if (socket.id !== socketID)
+          io.to(socketID).emit("newMeetingMember", socket.id);
+      });
+    }
+  });
+
+  socket.on("requestNewRoom", () => {
+    let meetingID = randomstring.generate(5);
+    meetingRooms[meetingID] = new Array(socket.id);
+    socket.emit("meetingID", meetingID);
+  });
+
+  socket.on("requestMeetingMembers", (data) => {
+    socket.emit("meetingMembers", meetingRooms[data]);
+  });
+
+  socket.on("transferSDPMeeting", (data) => {
+    io.to(data.to).emit("meetingSDPTransfer", data);
   });
 });
 

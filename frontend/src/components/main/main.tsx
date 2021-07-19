@@ -11,7 +11,7 @@ import SearchUser from "./SearchUser/searchuser";
 import axios from "axios";
 import ChatList from "./Chatlist/ChatList";
 import { useSnackbar } from "notistack";
-import Meeting from "./Meeting/main";
+import Meeting from "./Meeting/";
 import AlertDialog from "./AlertDialog";
 import { string } from "yargs";
 
@@ -38,6 +38,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     backgroundColor: theme.palette.background.default,
     borderLeft: "solid black 1px",
   },
+
+  meeting: { backgroundColor: theme.palette.background.default },
 }));
 
 const initState = {
@@ -63,6 +65,7 @@ const App = () => {
   let [openMenu, setOpenMenu] = useState("friendlist");
   let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
   let [onlineFriends, setOnlineFriends] = useState({});
+  let [meetingID, setMeetingID] = useState("");
   let [meetingMode, setMeetingMode] = useState(false);
 
   let [alertDialogProps, setAlertDialogProps] = useState(
@@ -122,6 +125,7 @@ const App = () => {
     });
 
     socket.current.on("meetingInvitation", (data: any) => {
+      setMeetingID(data.meetingID);
       setAlertDialogProps({
         open: true,
         title: "You are invited to join a meeting",
@@ -294,7 +298,19 @@ const App = () => {
     socket.current.emit("respondMeetingInvitation", {
       response: true,
       to: targetSID,
+      meetingID: meetingID,
     });
+
+    setMeetingMode(true);
+  };
+
+  const handleMeetingInviteDeclined = (targetSID: string) => {
+    socket.current.emit("respondMeetingInvitation", {
+      response: false,
+      to: targetSID,
+      meetingID: meetingID,
+    });
+    setMeetingID("");
   };
 
   return (
@@ -341,17 +357,29 @@ const App = () => {
             ""
           )}
           {openMenu == "meeting" ? (
-            <Grid item xs className={classes.chatContainer}>
+            <Grid item xs className={classes.meeting}>
               <Meeting
                 friends={onlineFriends}
                 socket={socket.current}
                 userSocketID={userSocketID.current}
+                meetingID={meetingID}
+                meetingMode={meetingMode}
+                handleNewMeeting={(id: string) => {
+                  setMeetingID(id);
+                  setMeetingMode(true);
+                }}
               />
             </Grid>
           ) : (
             ""
           )}
-          <Grid item xs className={classes.chatContainer}>
+          <Grid
+            item
+            xs
+            className={`${classes.chatContainer} ${
+              openMenu == "meeting" ? classes.hidden : ""
+            }`}
+          >
             {openChatSocket != "" ? (
               <PrivateChat
                 userSocketID={userSocketID.current}
@@ -383,7 +411,10 @@ const App = () => {
           setAlertDialogProps(initState.meetingProps);
           handleMeetingInviteAccepted(alertDialogProps.fromSocket);
         }}
-        onNegClicked={() => alert("declined")}
+        onNegClicked={() => {
+          setAlertDialogProps(initState.meetingProps);
+          handleMeetingInviteDeclined(alertDialogProps.fromSocket);
+        }}
         handleClose={() => setAlertDialogProps(initState.meetingProps)}
       />
     </>
