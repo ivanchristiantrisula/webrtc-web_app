@@ -31,7 +31,11 @@ export default (props: {
 
     props.socket.on("newMeetingMember", (data: any) => {
       let x = userSockets;
-      x.push(data);
+      let payload = {
+        socket: data,
+        status: "Connecting",
+      };
+      x.push(payload);
       setUserSockets([...x]);
     });
 
@@ -44,12 +48,12 @@ export default (props: {
   }, []);
 
   useEffect(() => {
-    userSockets.forEach((socketID) => {
+    userSockets.forEach(({ socket, status }) => {
       if (
-        _.isUndefined(peers.current[socketID]) &&
-        socketID !== props.userSocketID
+        _.isUndefined(peers.current[socket]) &&
+        socket !== props.userSocketID
       ) {
-        createPeer(socketID, true);
+        createPeer(socket, true);
       }
     });
   }, [userSockets]);
@@ -83,15 +87,22 @@ export default (props: {
 
     peers.current[socketID].on("connect", (data: any) => {
       //do somtheing when connected
+      let x = userSockets;
+      x[socketID].status = "Connected. Waiting for stream";
+      setUserSockets([...x]);
     });
 
     peers.current[socketID].on("stream", (stream: any) => {
       streams.current[socketID].srcObject = stream;
+
+      let x = userSockets;
+      x[socketID].status = "Stream available";
+      setUserSockets([...x]);
     });
   };
 
   const isMeetingAdmin = () => {
-    if (userSockets[0] === props.userSocketID) return true;
+    if (userSockets[0].socket === props.userSocketID) return true;
     return false;
   };
 
