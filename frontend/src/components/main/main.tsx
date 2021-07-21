@@ -112,7 +112,7 @@ const App = () => {
     });
 
     socket.current.on("sdpTransfer", (data: any) => {
-      console.log(data);
+      //console.log(data);
       // peers.current[data.from].signal(data.signal);
       if (peers.current[data.from] !== undefined) {
         peers.current[data.from].signal(data.signal);

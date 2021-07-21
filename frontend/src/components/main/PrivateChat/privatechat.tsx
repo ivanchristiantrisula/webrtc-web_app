@@ -7,7 +7,7 @@ import TopBar from "./topbar";
 import VideoCall from "../VideoCall/videocall";
 import { Socket } from "dgram";
 import SimplePeerFiles from "simple-peer-files";
-import UserPicker from "../UserPicker/UserPicker";
+import UserPicker from "../UserPicker";
 import _ from "underscore";
 import ReplyCard from "./replyCard";
 import { Box, createStyles, Grid, makeStyles } from "@material-ui/core";

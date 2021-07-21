@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import Peer from "simple-peer";
-import UserPicker from "../UserPicker/UserPicker";
+import UserPicker from "../UserPicker";
 import _ from "underscore";
 
 export default (props: {
@@ -9,7 +9,8 @@ export default (props: {
   userSocketID: string;
   meetingID: string;
 }) => {
-  const peers = useRef({});
+  let peers = useRef({});
+  let streams = useRef({});
   const [openUserPicker, setOpenUserPicker] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState({});
   const [userSockets, setUserSockets] = useState([]);
@@ -31,7 +32,12 @@ export default (props: {
     props.socket.on("newMeetingMember", (data: any) => {
       let x = userSockets;
       x.push(data);
-      setUserSockets(x);
+      setUserSockets([...x]);
+    });
+
+    props.socket.on("meetingSDPTransfer", (data: any) => {
+      if (_.isUndefined(peers.current[data.from])) createPeer(data.from, false);
+      peers.current[data.from].signal(data.signal);
     });
 
     requestMeetingMembers();
@@ -43,7 +49,7 @@ export default (props: {
         _.isUndefined(peers.current[socketID]) &&
         socketID !== props.userSocketID
       ) {
-        createPeer(socketID);
+        createPeer(socketID, true);
       }
     });
   }, [userSockets]);
@@ -52,8 +58,36 @@ export default (props: {
     props.socket.emit("requestMeetingMembers", props.meetingID);
   };
 
-  const createPeer = (socketID: string) => {
-    alert(socketID);
+  const createPeer = (socketID: string, isInitiator: boolean) => {
+    peers.current[socketID] = new Peer({
+      initiator: isInitiator,
+      trickle: true,
+      config: {
+        iceServers: [
+          {
+            urls: "stun:stun.l.google.com:19302",
+          },
+          // public turn server from https://gist.github.com/sagivo/3a4b2f2c7ac6e1b5267c2f1f59ac6c6b
+          // set your own servers here
+        ],
+      },
+    });
+
+    peers.current[socketID].on("signal", (data: any) => {
+      props.socket.current.emit("transferSDPMeeting", {
+        signal: data,
+        to: socketID,
+        from: props.userSocketID,
+      });
+    });
+
+    peers.current[socketID].on("connect", (data: any) => {
+      //do somtheing when connected
+    });
+
+    peers.current[socketID].on("stream", (stream: any) => {
+      streams.current[socketID].srcObject = stream;
+    });
   };
 
   const isMeetingAdmin = () => {
