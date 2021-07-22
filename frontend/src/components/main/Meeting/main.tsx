@@ -2,6 +2,25 @@ import { useRef, useState, useEffect } from "react";
 import Peer from "simple-peer";
 import UserPicker from "../UserPicker";
 import _ from "underscore";
+import { createStyles, makeStyles, Theme } from "@material-ui/core";
+
+const useStyle = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      width: "100%",
+      height: "100%",
+    },
+
+    videoArea: {
+      width: "100%",
+      height: "100%",
+    },
+    video: {
+      minWidth: "25%",
+      minHeight: "25%",
+    },
+  })
+);
 
 export default (props: {
   friends: any;
@@ -9,8 +28,10 @@ export default (props: {
   userSocketID: string;
   meetingID: string;
 }) => {
+  const classes = useStyle();
   let peers = useRef({});
   let streams = useRef({});
+  let myStream = useRef<any>();
   const [openUserPicker, setOpenUserPicker] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState({});
   const [userSockets, setUserSockets] = useState([]);
@@ -43,6 +64,12 @@ export default (props: {
       if (_.isUndefined(peers.current[data.from])) createPeer(data.from, false);
       peers.current[data.from].signal(data.signal);
     });
+
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream: any) => {
+        myStream.current.srcObject = stream;
+      });
 
     requestMeetingMembers();
   }, []);
@@ -78,7 +105,7 @@ export default (props: {
     });
 
     peers.current[socketID].on("signal", (data: any) => {
-      props.socket.current.emit("transferSDPMeeting", {
+      props.socket.emit("transferSDPMeeting", {
         signal: data,
         to: socketID,
         from: props.userSocketID,
@@ -121,7 +148,16 @@ export default (props: {
   };
 
   return (
-    <>
+    <div className={classes.root}>
+      <div className={classes.videoArea}>
+        <video
+          className={classes.video}
+          playsInline
+          ref={myStream}
+          autoPlay
+          muted
+        />
+      </div>
       <UserPicker
         isOpen={openUserPicker}
         title={"Invite to meeting"}
@@ -130,6 +166,6 @@ export default (props: {
         onPickedUser={inviteUser}
         handleClose={() => setOpenUserPicker(false)}
       />
-    </>
+    </div>
   );
 };
