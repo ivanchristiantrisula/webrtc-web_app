@@ -300,7 +300,7 @@ const App = () => {
       to: targetSID,
       meetingID: meetingID,
     });
-
+    setOpenMenu("meeting");
     setMeetingMode(true);
   };
 
@@ -356,7 +356,7 @@ const App = () => {
           ) : (
             ""
           )}
-          {openMenu == "meeting" ? (
+          {openMenu == "meeting" || meetingMode ? (
             <Grid item xs className={classes.meeting}>
               <Meeting
                 friends={onlineFriends}
