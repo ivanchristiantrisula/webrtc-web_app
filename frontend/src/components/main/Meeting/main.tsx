@@ -29,6 +29,7 @@ const Video = (props: { peer: any }) => {
 
   useEffect(() => {
     props.peer.on("stream", (stream: any) => {
+      alert("stream detected");
       ref.current.srcObject = stream;
     });
   }, []);
@@ -51,7 +52,7 @@ export default (props: {
   const [invitedUsers, setInvitedUsers] = useState({});
   const [userSockets, setUserSockets] = useState([]);
   const [userStreamStatus, setUserStreamStatus] = useState(false);
-  const [myStream, setMyStream] = useState<MediaStream>();
+  const [myStream, setMyStream] = useState<any>({});
   const [peers, setPeers] = useState([]);
   //const [streams, setStreams] = useState([]);
 
@@ -62,7 +63,24 @@ export default (props: {
 
     props.socket.on("meetingMembers", (data: any) => {
       console.log(data);
-      setUserSockets([data]);
+      setUserSockets(data);
+
+      //connect to everyone
+      data.forEach((socket: any) => {
+        //check if peer connection is already exists, then create the connection
+        if (
+          _.isUndefined(peersRef.current.find((p) => p.socket === socket)) &&
+          socket != props.userSocketID
+        ) {
+          console.log(myStream);
+          let peer = createPeer(socket, true);
+          peersRef.current.push({
+            peer: peer,
+            socket: socket,
+          });
+          setPeers((p) => [...p, peer]);
+        }
+      });
 
       //check if user just created the room
       if (data.length === 1) {
@@ -75,25 +93,30 @@ export default (props: {
     });
 
     props.socket.on("meetingSDPTransfer", (data: any) => {
-      let peerIdx = peersRef.current.findIndex((p) => p.socket === data.from);
-      //alert(peerIdx);
-      if (peerIdx === -1) {
-        let x = createPeer(data.from, false);
-        x.signal(data.signal);
-        peersRef.current.push({
-          peer: x,
-          socket: data.from,
-        });
-        setPeers((p) => [...p, x]);
-      } else {
-        console.log(peersRef.current[peerIdx].peer);
-        peersRef.current[peerIdx].peer.signal(data.signal);
+      if (data.from !== data.to) {
+        let peerIdx = peersRef.current.findIndex((p) => p.socket == data.from);
+        console.log(data);
+        //alert(peerIdx);
+        if (peerIdx == -1) {
+          let x = createPeer(data.from, false);
+          x.signal(data.signal);
+          peersRef.current.push({
+            peer: x,
+            socket: data.from,
+          });
+          setPeers((p) => [...p, x]);
+        } else {
+          //console.log(peersRef.current[peerIdx].peer);
+          //console.log(peerRef);
+          peersRef.current[peerIdx].peer.signal(data.signal);
+        }
       }
     });
 
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream: MediaStream) => {
+        //console.log(stream);
         setMyStream(stream);
         myStreamRef.current.srcObject = stream;
         //wait untill user stream is available, then request meeting members
@@ -101,28 +124,12 @@ export default (props: {
       });
   }, []);
 
-  useEffect(() => {
-    userSockets.forEach((socket) => {
-      //check if peer connection is already exists, then create the connection
-      if (
-        _.isUndefined(peersRef.current.find((p) => p.socket === socket)) &&
-        socket != props.userSocketID
-      ) {
-        let peer = createPeer(socket, true);
-        peersRef.current.push({
-          peer: peer,
-          socket: socket,
-        });
-        setPeers((p) => [...p, peer]);
-      }
-    });
-  }, [userSockets]);
-
   const requestMeetingMembers = () => {
     props.socket.emit("requestMeetingMembers", props.meetingID);
   };
 
   const createPeer = (socketID: string, isInitiator: boolean) => {
+    console.log(myStream);
     let peer = new Peer({
       initiator: isInitiator,
       trickle: true,
@@ -135,7 +142,7 @@ export default (props: {
           // set your own servers here
         ],
       },
-      stream: myStream,
+      stream: myStreamRef.current.srcObject,
     });
 
     peer.on("signal", (data: any) => {

@@ -56,7 +56,7 @@ const initState = {
 const App = () => {
   let [allUsers, setAllUsers] = useState({});
   let socket: any = useRef();
-  let userSocketID = useRef("");
+  const [userSocketID, setUserSocketID] = useState("");
   let [socketConnection, setSocketConnection] = useState(false);
   let [openChatSocket, setOpenChatSocket] = useState("");
   let peers: any = useRef({});
@@ -98,7 +98,7 @@ const App = () => {
 
     socket?.current?.on("yourID", (id: string) => {
       console.log("User Socket ID : " + id);
-      userSocketID.current = id;
+      setUserSocketID(id);
     });
     socket?.current?.on("allUsers", (users: any) => {
       console.log("Fetched all users");
@@ -112,9 +112,10 @@ const App = () => {
     });
 
     socket.current.on("sdpTransfer", (data: any) => {
-      //console.log(data);
+      console.log(data);
       // peers.current[data.from].signal(data.signal);
       if (peers.current[data.from] !== undefined) {
+        console.log(peers.current[data.from]);
         peers.current[data.from].signal(data.signal);
       } else {
         //set as receiver
@@ -163,11 +164,11 @@ const App = () => {
     });
 
     peers.current[socket_id].on("signal", (data: any) => {
-      console.log(data);
+      //console.log(data);
       socket.current.emit("transferSDP", {
         signal: data,
         to: socket_id,
-        from: userSocketID.current,
+        from: userSocketID,
       });
     });
 
@@ -261,7 +262,7 @@ const App = () => {
         let intersects = {};
         for (const key in allUsers) {
           if (Object.prototype.hasOwnProperty.call(allUsers, key)) {
-            if (key != userSocketID.current) {
+            if (key != userSocketID) {
               const element = allUsers[key];
               let friendIdx = allFriends.findIndex(
                 (friend: any) => friend._id == element._id
@@ -332,7 +333,7 @@ const App = () => {
           >
             <Friendlist
               users={onlineFriends}
-              userID={userSocketID.current}
+              userID={userSocketID}
               setPrivateChatTarget={(e: any) => startPeerConnection(e)}
             />
           </Grid>
@@ -344,7 +345,7 @@ const App = () => {
           >
             <ChatList
               users={onlineFriends}
-              userID={userSocketID.current}
+              userID={userSocketID}
               setPrivateChatTarget={(e: any) => startPeerConnection(e)}
               chats={chats}
             />
@@ -361,7 +362,7 @@ const App = () => {
               <Meeting
                 friends={onlineFriends}
                 socket={socket.current}
-                userSocketID={userSocketID.current}
+                userSocketID={userSocketID}
                 meetingID={meetingID}
                 meetingMode={meetingMode}
                 handleNewMeeting={(id: string) => {
@@ -382,7 +383,7 @@ const App = () => {
           >
             {openChatSocket != "" ? (
               <PrivateChat
-                userSocketID={userSocketID.current}
+                userSocketID={userSocketID}
                 recipientSocketID={openChatSocket}
                 peer={peers.current[openChatSocket]}
                 socket={socket.current}
@@ -392,7 +393,7 @@ const App = () => {
                 }}
                 users={onlineFriends}
                 sendForward={forwardChat}
-                myInfo={allUsers[userSocketID.current]}
+                myInfo={allUsers[userSocketID]}
               />
             ) : (
               ""

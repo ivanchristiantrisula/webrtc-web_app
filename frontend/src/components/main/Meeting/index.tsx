@@ -10,7 +10,7 @@ export default (props: {
   meetingMode: boolean;
   handleNewMeeting: Function;
 }) => {
-  const [meetingID, setMeetingID] = useState("");
+  const [meetingID, setMeetingID] = useState<string>();
 
   useEffect(() => {
     props.socket.on("meetingID", (id: string) => {
@@ -30,7 +30,7 @@ export default (props: {
           friends={props.friends}
           socket={props.socket}
           userSocketID={props.userSocketID}
-          meetingID={meetingID}
+          meetingID={meetingID || props.meetingID}
         />
       ) : (
         <Welcome onCreateMeeting={requestMeetingID} />

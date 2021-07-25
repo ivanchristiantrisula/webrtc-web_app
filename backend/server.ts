@@ -74,7 +74,10 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("transferSDP", (data) => {
-    io.to(data.to).emit("sdpTransfer", data);
+    //console.log(data);
+    let x = data;
+    x.from = socket.id;
+    io.to(data.to).emit("sdpTransfer", x);
   });
 
   socket.on("startVideoCall", (data) => {
@@ -113,11 +116,15 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("requestMeetingMembers", (data) => {
+    console.log(data);
     socket.emit("meetingMembers", meetingRooms[data]);
   });
 
   socket.on("transferSDPMeeting", (data) => {
-    io.to(data.to).emit("meetingSDPTransfer", data);
+    let x = data;
+    x.from = socket.id;
+    console.log(x);
+    io.to(data.to).emit("meetingSDPTransfer", x);
   });
 });
 
