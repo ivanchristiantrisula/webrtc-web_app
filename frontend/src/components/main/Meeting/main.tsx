@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import Peer from "simple-peer";
 import UserPicker from "../UserPicker";
 import _ from "underscore";
-import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import React from "react";
 
 const useStyle = makeStyles((theme: Theme) =>
@@ -10,15 +10,24 @@ const useStyle = makeStyles((theme: Theme) =>
     root: {
       width: "100%",
       height: "100%",
+      backgroundColor: "black",
     },
 
     videoArea: {
-      width: "100%",
-      height: "100%",
+      minWidth: "100%",
+      minHeight: "100%",
+      alignItems: "center",
+      justifyContent: "center",
     },
     video: {
-      minWidth: "25%",
-      minHeight: "25%",
+      minWidth: "100%",
+      minHeight: "100%",
+      aspectRatio: "3/2",
+    },
+
+    vidContainer: {
+      minWidth: "49%",
+      minHeight: "49%",
     },
   })
 );
@@ -29,7 +38,6 @@ const Video = (props: { peer: any }) => {
 
   useEffect(() => {
     props.peer.on("stream", (stream: any) => {
-      alert("stream detected");
       ref.current.srcObject = stream;
     });
   }, []);
@@ -58,7 +66,7 @@ export default (props: {
 
   useEffect(() => {
     props.socket.on("meetingInvitationResponse", (response: boolean) => {
-      alert("meeting response : " + response);
+      //do something when user has responed meeting invitation
     });
 
     props.socket.on("meetingMembers", (data: any) => {
@@ -184,8 +192,7 @@ export default (props: {
 
   return (
     <div className={classes.root}>
-      <div className={classes.videoArea}>
-        {/* <video
+      {/* <video
           className={classes.video}
           playsInline
           //ref={(stream) => (streams.current[0] = stream)}
@@ -193,10 +200,21 @@ export default (props: {
           autoPlay
           muted
         /> */}
+
+      <Box
+        className={classes.videoArea}
+        display="flex"
+        flexWrap="wrap"
+        flexDirection="row"
+      >
         {peers.map((peer, i) => {
-          return <Video key={i} peer={peer} />;
+          return (
+            <Box className={classes.vidContainer}>
+              <Video key={i} peer={peer} />
+            </Box>
+          );
         })}
-      </div>
+      </Box>
 
       <UserPicker
         isOpen={openUserPicker}

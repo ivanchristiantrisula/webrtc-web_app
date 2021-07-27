@@ -399,7 +399,6 @@ const App = () => {
               ""
             )}
           </Grid>
-          =
         </Grid>
       </Box>
       <AlertDialog
