@@ -4,6 +4,7 @@ import UserPicker from "../UserPicker";
 import _ from "underscore";
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import React from "react";
+import BottomBar from "./bottombar";
 
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
@@ -15,7 +16,7 @@ const useStyle = makeStyles((theme: Theme) =>
 
     videoArea: {
       minWidth: "100%",
-      minHeight: "100%",
+      height: "93%",
       alignItems: "center",
       justifyContent: "center",
     },
@@ -28,6 +29,12 @@ const useStyle = makeStyles((theme: Theme) =>
     vidContainer: {
       minWidth: "49%",
       minHeight: "49%",
+    },
+
+    bottomBar: {
+      height: "7%",
+      width: "100%",
+      backgroundColor: "white",
     },
   })
 );
@@ -75,7 +82,7 @@ export default (props: {
 
       //connect to everyone
       data.forEach((socket: any) => {
-        //check if peer connection is already exists, then create the connection
+        //check if peer connection doesn't exist, then create the connection
         if (
           _.isUndefined(peersRef.current.find((p) => p.socket === socket)) &&
           socket != props.userSocketID
@@ -191,8 +198,9 @@ export default (props: {
   };
 
   return (
-    <div className={classes.root}>
-      {/* <video
+    <>
+      <Box display="flex" flexDirection="column" className={classes.root}>
+        {/* <video
           className={classes.video}
           playsInline
           //ref={(stream) => (streams.current[0] = stream)}
@@ -200,20 +208,23 @@ export default (props: {
           autoPlay
           muted
         /> */}
-
-      <Box
-        className={classes.videoArea}
-        display="flex"
-        flexWrap="wrap"
-        flexDirection="row"
-      >
-        {peers.map((peer, i) => {
-          return (
-            <Box className={classes.vidContainer}>
-              <Video key={i} peer={peer} />
-            </Box>
-          );
-        })}
+        <Box
+          className={classes.videoArea}
+          display="flex"
+          flexWrap="wrap"
+          flexDirection="row"
+        >
+          {peers.map((peer, i) => {
+            return (
+              <Box className={classes.vidContainer}>
+                <Video key={i} peer={peer} />
+              </Box>
+            );
+          })}
+        </Box>
+        <Box className={classes.bottomBar}>
+          <BottomBar meetingID={props.meetingID} />
+        </Box>
       </Box>
 
       <UserPicker
@@ -224,6 +235,6 @@ export default (props: {
         onPickedUser={inviteUser}
         handleClose={() => setOpenUserPicker(false)}
       />
-    </div>
+    </>
   );
 };

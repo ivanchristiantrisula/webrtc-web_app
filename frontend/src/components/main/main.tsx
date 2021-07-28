@@ -358,7 +358,13 @@ const App = () => {
             ""
           )}
           {openMenu == "meeting" || meetingMode ? (
-            <Grid item xs className={classes.meeting}>
+            <Grid
+              item
+              xs
+              className={`${classes.meeting} ${
+                openMenu != "meeting" ? classes.hidden : ""
+              }`}
+            >
               <Meeting
                 friends={onlineFriends}
                 socket={socket.current}
