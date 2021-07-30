@@ -41,7 +41,7 @@ const useStyle = makeStyles((theme: Theme) =>
   })
 );
 
-export default (props: { meetingID: string }) => {
+export default (props: { meetingID: string; handleLeaveMeeting: Function }) => {
   const classes = useStyle();
   return (
     <>
@@ -64,7 +64,10 @@ export default (props: { meetingID: string }) => {
               <MicIcon fontSize="large" />
               Mute
             </Box>
-            <Box className={classes.iconContainer}>
+            <Box
+              className={classes.iconContainer}
+              onClick={() => props.handleLeaveMeeting()}
+            >
               <CallEndIcon fontSize="large" />
               End Call
             </Box>

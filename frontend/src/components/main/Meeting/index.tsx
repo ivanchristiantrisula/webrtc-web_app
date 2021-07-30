@@ -9,6 +9,7 @@ export default (props: {
   userSocketID: string;
   meetingMode: boolean;
   handleNewMeeting: Function;
+  endMeeting: Function;
 }) => {
   const [meetingID, setMeetingID] = useState<string>();
 
@@ -31,6 +32,7 @@ export default (props: {
           socket={props.socket}
           userSocketID={props.userSocketID}
           meetingID={meetingID || props.meetingID}
+          endMeeting={props.endMeeting()}
         />
       ) : (
         <Welcome onCreateMeeting={requestMeetingID} />

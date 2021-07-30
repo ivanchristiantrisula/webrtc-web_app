@@ -314,6 +314,11 @@ const App = () => {
     setMeetingID("");
   };
 
+  const endMeeting = () => {
+    setMeetingMode(false);
+    setMeetingID("");
+  };
+
   return (
     <>
       <Box height="100vh">
@@ -375,6 +380,7 @@ const App = () => {
                   setMeetingID(id);
                   setMeetingMode(true);
                 }}
+                endMeeting={endMeeting}
               />
             </Grid>
           ) : (

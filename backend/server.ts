@@ -126,6 +126,12 @@ io.on("connection", (socket: Socket) => {
     console.log(x);
     io.to(data.to).emit("meetingSDPTransfer", x);
   });
+
+  socket.on("leaveMeeting", ({ meetingID }) => {
+    meetingRooms[meetingID].forEach((sid) => {
+      io.to(sid).emit("removeMeetingPeer", { socketID: sid });
+    });
+  });
 });
 
 server.listen(3001, () => {

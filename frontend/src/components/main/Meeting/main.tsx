@@ -5,6 +5,7 @@ import _ from "underscore";
 import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import React from "react";
 import BottomBar from "./bottombar";
+import { Socket } from "socket.io-client";
 
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
@@ -36,6 +37,19 @@ const useStyle = makeStyles((theme: Theme) =>
       width: "100%",
       backgroundColor: "white",
     },
+
+    userVidContainer: {
+      alignSelf: "flex-end",
+      justifyContent: "flex-end",
+      marginRight: "10px",
+      marginBottom: "10px",
+      textAlign: "right",
+    },
+
+    userVid: {
+      maxWidth: "100%",
+      maxHeight: "100%",
+    },
   })
 );
 
@@ -56,9 +70,10 @@ const Video = (props: { peer: any }) => {
 
 export default (props: {
   friends: any;
-  socket: any;
+  socket: Socket;
   userSocketID: string;
   meetingID: string;
+  endMeeting: Function;
 }) => {
   const classes = useStyle();
   let peersRef = useRef([]);
@@ -125,6 +140,16 @@ export default (props: {
           //console.log(peerRef);
           peersRef.current[peerIdx].peer.signal(data.signal);
         }
+      }
+    });
+
+    props.socket.on("removeMeetingPeer", ({ socketID }) => {
+      let idx = peersRef.current.findIndex((p) => p.socket === socketID);
+
+      if (idx > -1) {
+        peersRef.current.splice(idx, 1);
+
+        setPeers([...peers.splice(idx, 1)]);
       }
     });
 
@@ -197,17 +222,14 @@ export default (props: {
     }
   };
 
+  const leaveMeeting = () => {
+    props.socket.emit("leaveMeeting", { meetingID: props.meetingID });
+    props.endMeeting();
+  };
+
   return (
     <>
       <Box display="flex" flexDirection="column" className={classes.root}>
-        {/* <video
-          className={classes.video}
-          playsInline
-          //ref={(stream) => (streams.current[0] = stream)}
-          ref={myStreamRef}
-          autoPlay
-          muted
-        /> */}
         <Box
           className={classes.videoArea}
           display="flex"
@@ -221,9 +243,34 @@ export default (props: {
               </Box>
             );
           })}
+          <Box
+            height="150px"
+            zIndex="99"
+            alignSelf="flex-end"
+            justifyContent="flex-end"
+            flex="1"
+          ></Box>
+          <Box
+            width="300px"
+            height="150px"
+            zIndex="99"
+            className={classes.userVidContainer}
+          >
+            <video
+              className={classes.userVid}
+              playsInline
+              //ref={(stream) => (streams.current[0] = stream)}
+              ref={myStreamRef}
+              autoPlay
+              muted
+            />
+          </Box>
         </Box>
         <Box className={classes.bottomBar}>
-          <BottomBar meetingID={props.meetingID} />
+          <BottomBar
+            meetingID={props.meetingID}
+            handleLeaveMeeting={leaveMeeting}
+          />
         </Box>
       </Box>
 
