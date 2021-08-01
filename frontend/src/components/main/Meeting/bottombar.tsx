@@ -6,6 +6,7 @@ import MicOffIcon from "@material-ui/icons/MicOff";
 import VideocamIcon from "@material-ui/icons/Videocam";
 import VideocamOffIcon from "@material-ui/icons/VideocamOff";
 import CallEndIcon from "@material-ui/icons/CallEnd";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
 
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,7 +42,11 @@ const useStyle = makeStyles((theme: Theme) =>
   })
 );
 
-export default (props: { meetingID: string; handleLeaveMeeting: Function }) => {
+export default (props: {
+  meetingID: string;
+  handleLeaveMeeting: Function;
+  handleInviteUser: Function;
+}) => {
   const classes = useStyle();
   return (
     <>
@@ -77,7 +82,18 @@ export default (props: { meetingID: string; handleLeaveMeeting: Function }) => {
             </Box>
           </Box>
         </Grid>
-        <Grid item xs={4} className={classes.gridItems}>
+        <Grid item xs={2} className={classes.gridItems}>
+          <Box display="flex" className={classes.midSection}>
+            <Box
+              className={classes.iconContainer}
+              onClick={() => props.handleInviteUser()}
+            >
+              <PersonAddIcon fontSize="large" />
+              Invite
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={2} className={classes.gridItems}>
           <Box display="flex" className={classes.rightSection}>
             {props.meetingID}
           </Box>

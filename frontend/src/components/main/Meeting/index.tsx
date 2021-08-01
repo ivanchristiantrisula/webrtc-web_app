@@ -32,7 +32,7 @@ export default (props: {
           socket={props.socket}
           userSocketID={props.userSocketID}
           meetingID={meetingID || props.meetingID}
-          endMeeting={props.endMeeting()}
+          endMeeting={() => props.endMeeting()}
         />
       ) : (
         <Welcome onCreateMeeting={requestMeetingID} />

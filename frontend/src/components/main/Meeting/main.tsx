@@ -77,7 +77,7 @@ export default (props: {
 }) => {
   const classes = useStyle();
   let peersRef = useRef([]);
-  let myStreamRef = useRef<any>([]);
+  let myStreamRef = useRef<any>();
   const [openUserPicker, setOpenUserPicker] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState({});
   const [userSockets, setUserSockets] = useState([]);
@@ -156,9 +156,11 @@ export default (props: {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream: MediaStream) => {
-        //console.log(stream);
         setMyStream(stream);
-        myStreamRef.current.srcObject = stream;
+        if (myStreamRef.current) {
+          myStreamRef.current.srcObject = stream;
+        }
+
         //wait untill user stream is available, then request meeting members
         requestMeetingMembers();
       });
@@ -224,6 +226,9 @@ export default (props: {
 
   const leaveMeeting = () => {
     props.socket.emit("leaveMeeting", { meetingID: props.meetingID });
+    peersRef.current.forEach((element) => {
+      element.peer.destroy();
+    });
     props.endMeeting();
   };
 
@@ -270,6 +275,7 @@ export default (props: {
           <BottomBar
             meetingID={props.meetingID}
             handleLeaveMeeting={leaveMeeting}
+            handleInviteUser={() => setOpenUserPicker(true)}
           />
         </Box>
       </Box>
