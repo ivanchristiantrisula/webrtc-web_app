@@ -243,9 +243,21 @@ export default (props: {
   };
 
   const toggleScreenShare = () => {
-    //@ts-ignore
-    const stream = navigator.mediaDevices.getDisplayMedia();
-    console.log(stream);
+    navigator.mediaDevices
+      //@ts-ignore
+      .getDisplayMedia({ audio: true, video: true })
+      .then((stream: MediaStream) => {
+        console.log(stream);
+        peersRef.current.forEach((element) => {
+          console.log(element.peer);
+          element.peer.replaceTrack(
+            element.peer.streams[0].getVideoTracks()[0],
+            stream.getVideoTracks()[0],
+            myStreamRef.current.srcObject
+          );
+        });
+      });
+    //console.log(stream);
   };
 
   return (
