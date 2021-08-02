@@ -232,6 +232,22 @@ export default (props: {
     props.endMeeting();
   };
 
+  const toggleVideo = () => {
+    myStreamRef.current.srcObject.getVideoTracks()[0].enabled =
+      !myStreamRef.current.srcObject.getVideoTracks()[0].enabled;
+  };
+
+  const toggleAudio = () => {
+    myStreamRef.current.srcObject.getAudioTracks()[0].enabled =
+      !myStreamRef.current.srcObject.getAudioTracks()[0].enabled;
+  };
+
+  const toggleScreenShare = () => {
+    //@ts-ignore
+    const stream = navigator.mediaDevices.getDisplayMedia();
+    console.log(stream);
+  };
+
   return (
     <>
       <Box display="flex" flexDirection="column" className={classes.root}>
@@ -276,6 +292,9 @@ export default (props: {
             meetingID={props.meetingID}
             handleLeaveMeeting={leaveMeeting}
             handleInviteUser={() => setOpenUserPicker(true)}
+            handleMuteVideo={toggleVideo}
+            handleMuteAudio={toggleAudio}
+            handleScreenShare={toggleScreenShare}
           />
         </Box>
       </Box>
