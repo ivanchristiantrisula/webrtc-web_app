@@ -78,12 +78,14 @@ export default (props: {
   const classes = useStyle();
   let peersRef = useRef([]);
   let myStreamRef = useRef<any>();
+  let screenShareRef = useRef<MediaStream>();
   const [openUserPicker, setOpenUserPicker] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState({});
   const [userSockets, setUserSockets] = useState([]);
   const [userStreamStatus, setUserStreamStatus] = useState(false);
   const [myStream, setMyStream] = useState<any>({});
   const [peers, setPeers] = useState([]);
+  const [isScreensharing, setIsScreensharing] = useState(false);
   //const [streams, setStreams] = useState([]);
 
   useEffect(() => {
@@ -243,21 +245,41 @@ export default (props: {
   };
 
   const toggleScreenShare = () => {
-    navigator.mediaDevices
-      //@ts-ignore
-      .getDisplayMedia({ audio: true, video: true })
-      .then((stream: MediaStream) => {
-        console.log(stream);
-        peersRef.current.forEach((element) => {
-          console.log(element.peer);
-          element.peer.replaceTrack(
-            element.peer.streams[0].getVideoTracks()[0],
-            stream.getVideoTracks()[0],
-            myStreamRef.current.srcObject
-          );
+    if (!isScreensharing) {
+      navigator.mediaDevices
+        //@ts-ignore
+        .getDisplayMedia({ audio: false, video: true })
+        .then((stream: MediaStream) => {
+          screenShareRef.current = stream;
+          peersRef.current.forEach((element) => {
+            element.peer.replaceTrack(
+              element.peer.streams[0].getVideoTracks()[0],
+              stream.getVideoTracks()[0],
+              myStreamRef.current.srcObject
+            );
+            //element.peer.addStream(stream);
+          });
+
+          stream.getVideoTracks()[0].onended = () => endScreenShare();
         });
-      });
+      setIsScreensharing(true);
+    } else {
+      endScreenShare();
+    }
+
     //console.log(stream);
+  };
+
+  const endScreenShare = () => {
+    screenShareRef.current.getVideoTracks()[0].stop();
+    peersRef.current.forEach((element) => {
+      element.peer.replaceTrack(
+        element.peer.streams[0].getVideoTracks()[0],
+        myStreamRef.current.srcObject.getVideoTracks()[0],
+        myStreamRef.current.srcObject
+      );
+    });
+    setIsScreensharing(false);
   };
 
   return (
