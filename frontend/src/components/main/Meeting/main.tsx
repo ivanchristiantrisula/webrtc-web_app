@@ -86,6 +86,7 @@ export default (props: {
   const [myStream, setMyStream] = useState<any>({});
   const [peers, setPeers] = useState([]);
   const [isScreensharing, setIsScreensharing] = useState(false);
+  const [focusedOn, setFocusedOn] = useState("");
   //const [streams, setStreams] = useState([]);
 
   useEffect(() => {
@@ -155,6 +156,10 @@ export default (props: {
       }
     });
 
+    props.socket.on("screenshareMode", ({ sid, status }) => {
+      status ? setFocusedOn(sid) : setFocusedOn("");
+    });
+
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream: MediaStream) => {
@@ -167,6 +172,13 @@ export default (props: {
         requestMeetingMembers();
       });
   }, []);
+
+  useEffect(() => {
+    props.socket.emit("notifyScreenSharing", {
+      roomID: props.meetingID,
+      status: isScreensharing,
+    });
+  }, [isScreensharing]);
 
   const requestMeetingMembers = () => {
     props.socket.emit("requestMeetingMembers", props.meetingID);

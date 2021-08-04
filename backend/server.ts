@@ -132,6 +132,12 @@ io.on("connection", (socket: Socket) => {
       io.to(sid).emit("removeMeetingPeer", { socketID: sid });
     });
   });
+
+  socket.on("notifyScreenSharing",(data)=>{
+    meetingRooms[data.roomID].forEach(sid => {
+      io.to(sid).emit("screenshareMode",{sid : socket.id, status : data.status})
+    });
+  })
 });
 
 server.listen(3001, () => {
