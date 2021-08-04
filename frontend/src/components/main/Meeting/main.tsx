@@ -6,6 +6,8 @@ import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
 import React from "react";
 import BottomBar from "./bottombar";
 import { Socket } from "socket.io-client";
+// @ts-ignore
+import { SketchField, Tools } from "react-sketch";
 
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
@@ -79,6 +81,7 @@ export default (props: {
   let peersRef = useRef([]);
   let myStreamRef = useRef<any>();
   let screenShareRef = useRef<MediaStream>();
+  let whiteboardRef = useRef();
   const [openUserPicker, setOpenUserPicker] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState({});
   const [userSockets, setUserSockets] = useState([]);
@@ -185,7 +188,6 @@ export default (props: {
   };
 
   const createPeer = (socketID: string, isInitiator: boolean) => {
-    console.log(myStream);
     let peer = new Peer({
       initiator: isInitiator,
       trickle: true,
@@ -342,6 +344,7 @@ export default (props: {
             handleMuteAudio={toggleAudio}
             handleScreenShare={toggleScreenShare}
           />
+          <SketchField ref={whiteboardRef} />
         </Box>
       </Box>
 
