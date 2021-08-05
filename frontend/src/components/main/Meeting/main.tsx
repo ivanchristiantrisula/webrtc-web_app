@@ -22,14 +22,14 @@ const useStyle = makeStyles((theme: Theme) =>
       justifyContent: "center",
     },
     video: {
-      minWidth: "100%",
-      minHeight: "100%",
-      aspectRatio: "3/2",
+      width: "100%",
+      height: "auto",
     },
 
     vidContainer: {
       minWidth: "49%",
-      minHeight: "49%",
+      maxWidth: "99%",
+      height: "auto",
     },
 
     bottomBar: {
