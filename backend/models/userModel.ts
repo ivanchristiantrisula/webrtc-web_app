@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
     type: Array,
     required: false,
   },
+  MBTI: {
+    type: String,
+    required: false,
+  },
 });
 
 userSchema.plugin(uniqueValidator, {

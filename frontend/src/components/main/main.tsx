@@ -13,7 +13,8 @@ import ChatList from "./Chatlist/ChatList";
 import { useSnackbar } from "notistack";
 import Meeting from "./Meeting/";
 import AlertDialog from "./AlertDialog";
-import { string } from "yargs";
+import FriendFinder from "./FindFriend";
+import FindFriend from "./FindFriend";
 
 const io = require("socket.io-client");
 require("dotenv").config();
@@ -40,6 +41,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 
   meeting: { backgroundColor: theme.palette.background.default },
+
+  findfriend: { backgroundColor: theme.palette.background.default },
 }));
 
 const initState = {
@@ -386,11 +389,18 @@ const App = () => {
           ) : (
             ""
           )}
+          {openMenu == "findfriend" ? (
+            <Grid item xs className={classes.findfriend}>
+              <FindFriend />
+            </Grid>
+          ) : null}
           <Grid
             item
             xs
             className={`${classes.chatContainer} ${
-              openMenu == "meeting" ? classes.hidden : ""
+              openMenu == "meeting" || openMenu == "findfriend"
+                ? classes.hidden
+                : ""
             }`}
           >
             {openChatSocket != "" ? (

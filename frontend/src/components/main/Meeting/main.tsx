@@ -7,7 +7,6 @@ import React from "react";
 import BottomBar from "./bottombar";
 import { Socket } from "socket.io-client";
 // @ts-ignore
-import { SketchField, Tools } from "react-sketch";
 
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
@@ -344,7 +343,6 @@ export default (props: {
             handleMuteAudio={toggleAudio}
             handleScreenShare={toggleScreenShare}
           />
-          <SketchField ref={whiteboardRef} />
         </Box>
       </Box>
 

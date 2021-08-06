@@ -10,6 +10,7 @@ import GroupIcon from "@material-ui/icons/Group";
 import ChatIcon from "@material-ui/icons/Chat";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import PersonIcon from "@material-ui/icons/Person";
+import SearchIcon from "@material-ui/icons/Search";
 
 function App(props: any) {
   return (
@@ -66,7 +67,7 @@ function App(props: any) {
               props.openMenu("searchUser");
             }}
           >
-            <PersonAddIcon
+            <SearchIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"
             />
@@ -86,6 +87,25 @@ function App(props: any) {
             }}
           >
             <GroupIcon
+              style={{ color: "white", display: "block", margin: "auto" }}
+              fontSize="large"
+            />
+          </ListItemIcon>
+        </ListItem>
+        <ListItem
+          button
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+          }}
+        >
+          <ListItemIcon
+            onClick={() => {
+              props.openMenu("findfriend");
+            }}
+          >
+            <PersonAddIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"
             />

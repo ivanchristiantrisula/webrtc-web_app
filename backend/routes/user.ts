@@ -50,6 +50,7 @@ app.post("/login", async (req, res) => {
           userData["name"] = doc.name;
           userData["email"] = doc.email;
           userData["username"] = doc.username;
+          userData["MBTI"] = doc.MBTI;
           let token = require("../library/generateToken")(userData);
 
           res.cookie("token", token, { httpOnly: false });
