@@ -271,6 +271,36 @@ app.post("/rejectFriendRequest", (req, res) => {
   }
 });
 
+app.post("/updateMBTI", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+
+    if (user) {
+      let userData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+      };
+
+      User.updateOne(
+        { _id: user._id },
+        { $set: { MBTI: req.body.type } },
+        (err, docs) => {
+          if (err) res.status(500).send({ errors: [err] });
+          return;
+        }
+      );
+
+      res.status(200).send("Success");
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
 app.get("/testCookie", (req, res) => {
   console.log(req.cookies);
   console.log(decodeToken(req.cookies.token));

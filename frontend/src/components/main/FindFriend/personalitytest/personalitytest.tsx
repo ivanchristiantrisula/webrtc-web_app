@@ -14,6 +14,8 @@ import LinearProgress, {
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import "./style.css";
+import axios from "axios";
+import { isTypeAssertion } from "typescript";
 
 function LinearProgressWithLabel(
   props: LinearProgressProps & { value: number }
@@ -98,13 +100,14 @@ export default () => {
   );
   const [answers, setAnswers] = useState([]);
   const [currQuestionNum, setCurrQuestionNum] = useState(0);
-
-  useEffect(() => {
-    console.log(answers);
-  }, [answers]);
+  const [result, setResult] = useState("");
 
   const nextQuestion = () => {
-    setCurrQuestionNum(currQuestionNum + 1);
+    if (answers[9] !== undefined) {
+      calculateResult();
+    } else {
+      setCurrQuestionNum(currQuestionNum + 1);
+    }
   };
 
   const prevQuestion = () => {
@@ -119,6 +122,107 @@ export default () => {
       x[currQuestionNum] = selection;
       setAnswers([...x]);
     }
+  };
+
+  const calculateResult = () => {
+    let scores = {
+      E: 0,
+      I: 0,
+      S: 0,
+      N: 0,
+      T: 0,
+      F: 0,
+      J: 0,
+      P: 0,
+    };
+
+    answers.forEach((answer, i) => {
+      let type = (i + 1) % 4;
+      switch (type) {
+        case 1: // E/I
+          if (answer === 0) {
+            scores.E++;
+          } else {
+            scores.I++;
+          }
+          break;
+        case 2: // S/N
+          if (answer === 0) {
+            scores.S++;
+          } else {
+            scores.N++;
+          }
+          break;
+        case 3: // T/F
+          if (answer === 0) {
+            scores.T++;
+          } else {
+            scores.F++;
+          }
+          break;
+        case 0: // J/P
+          if (answer === 0) {
+            scores.J++;
+          } else {
+            scores.P++;
+          }
+          break;
+      }
+    });
+
+    let typeMatrix = [
+      ["E", "I"],
+      ["S", "N"],
+      ["T", "F"],
+      ["J", "P"],
+    ];
+
+    var typeName = {
+      E: "Extrovert",
+      I: "Introvert",
+      S: "Sensor",
+      N: "Intuitive",
+      T: "Thinker",
+      F: "Feeler",
+      P: "Perceiver",
+      J: "Judger",
+    };
+
+    let result = typeMatrix.map((pair) => {
+      let a = pair[0];
+      let b = pair[1];
+
+      let type = scores[a] > scores[b] ? a : b;
+      let totalScore = scores[a] + scores[b];
+
+      return {
+        type: type,
+        typeName: typeName[type],
+        score: Math.round((scores[type] / totalScore) * 100),
+      };
+    });
+
+    let typeString = result
+      .map((x) => {
+        return x.type;
+      })
+      .join("");
+
+    axios
+      .post(
+        process.env.REACT_APP_BACKEND_URI + "/api/user/updateMBTI",
+        {
+          rawResult: result,
+          type: typeString,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {})
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
