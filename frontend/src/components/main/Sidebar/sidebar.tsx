@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   List,
   ListItem,
@@ -13,6 +14,9 @@ import PersonIcon from "@material-ui/icons/Person";
 import SearchIcon from "@material-ui/icons/Search";
 
 function App(props: any) {
+  const getUID = () => {
+    return JSON.parse(localStorage.getItem("user"))._id;
+  };
   return (
     <React.Fragment>
       <List>
@@ -108,6 +112,26 @@ function App(props: any) {
             <PersonAddIcon
               style={{ color: "white", display: "block", margin: "auto" }}
               fontSize="large"
+            />
+          </ListItemIcon>
+        </ListItem>
+        <ListItem
+          button
+          style={{
+            position: "fixed",
+            bottom: "0",
+            paddingBottom: "20px",
+          }}
+        >
+          <ListItemIcon
+            onClick={() => {
+              props.openMenu("profile");
+            }}
+          >
+            <Avatar
+              src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${
+                JSON.parse(localStorage.getItem("user"))._id
+              }.png`}
             />
           </ListItemIcon>
         </ListItem>
