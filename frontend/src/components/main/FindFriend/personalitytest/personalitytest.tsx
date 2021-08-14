@@ -170,14 +170,14 @@ export default () => {
       }
     });
 
-    let typeMatrix = [
+    const typeMatrix = [
       ["E", "I"],
       ["S", "N"],
       ["T", "F"],
       ["J", "P"],
     ];
 
-    var typeName = {
+    const typeName = {
       E: "Extrovert",
       I: "Introvert",
       S: "Sensor",

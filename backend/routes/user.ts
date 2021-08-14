@@ -51,6 +51,7 @@ app.post("/login", async (req, res) => {
           userData["email"] = doc.email;
           userData["username"] = doc.username;
           userData["MBTI"] = doc.MBTI;
+          userData["bio"] = doc.bio;
           let token = require("../library/generateToken")(userData);
 
           res.cookie("token", token, { httpOnly: false });
@@ -293,6 +294,51 @@ app.post("/updateMBTI", (req, res) => {
       );
 
       res.status(200).send("Success");
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
+app.post("/updateProfile", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+
+    if (user) {
+      console.log(req.body);
+      let userData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+      };
+
+      User.updateOne(
+        { _id: user._id },
+        { $set: { name: req.body.name, bio: req.body.bio } },
+        (err, docs) => {
+          console.log(docs);
+          if (err) res.status(500).send({ errors: [err] });
+          return;
+        }
+      );
+
+      // let payload = {};
+      // payload["_id"] = doc._id;
+      // payload["name"] = doc.name;
+      // payload["email"] = doc.email;
+      // payload["username"] = doc.username;
+      // payload["MBTI"] = doc.MBTI;
+      // payload["bio"] = doc.bio;
+      // let token = require("../library/generateToken")(userData);
+
+      //res.cookie("token", token, { httpOnly: false });
+
+      res.status(200).send({
+        user: userData,
+      });
     } else {
       res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
     }

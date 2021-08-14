@@ -15,6 +15,7 @@ import Meeting from "./Meeting/";
 import AlertDialog from "./AlertDialog";
 import FriendFinder from "./FindFriend";
 import FindFriend from "./FindFriend";
+import Profile from "./Profile/";
 
 const io = require("socket.io-client");
 require("dotenv").config();
@@ -43,6 +44,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   meeting: { backgroundColor: theme.palette.background.default },
 
   findfriend: { backgroundColor: theme.palette.background.default },
+
+  profile: { backgroundColor: theme.palette.background.default },
 }));
 
 const initState = {
@@ -394,11 +397,20 @@ const App = () => {
               <FindFriend />
             </Grid>
           ) : null}
+
+          {openMenu == "profile" ? (
+            <Grid item xs className={classes.profile}>
+              <Profile user={allUsers[userSocketID]} />
+            </Grid>
+          ) : null}
+
           <Grid
             item
             xs
             className={`${classes.chatContainer} ${
-              openMenu == "meeting" || openMenu == "findfriend"
+              openMenu == "meeting" ||
+              openMenu == "findfriend" ||
+              openMenu == "profile"
                 ? classes.hidden
                 : ""
             }`}

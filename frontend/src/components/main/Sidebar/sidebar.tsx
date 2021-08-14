@@ -121,6 +121,7 @@ function App(props: any) {
             position: "fixed",
             bottom: "0",
             paddingBottom: "20px",
+            width: "5rem",
           }}
         >
           <ListItemIcon
