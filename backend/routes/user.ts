@@ -347,6 +347,60 @@ app.post("/updateProfile", (req, res) => {
   }
 });
 
+app.post("/changePassword", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+
+    if (user) {
+      let userData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+      };
+
+      if (req.body.new != req.body.confirm) {
+        res.status(400).send("Confirm password doesnt match");
+        return;
+      }
+
+      User.findOne({ _id: user._id }, function (err, doc) {
+        if (!err) {
+          bcrypt.compare(req.body.old, doc.password, async (err, result) => {
+            if (err) return console.log(err);
+            if (result) {
+              let hashedPass = await bcrypt.hash(req.body.new, 10);
+              User.updateOne(
+                { _id: user._id },
+                { $set: { password: hashedPass } },
+                (err, docs) => {
+                  if (err) {
+                    res.status(500).send({ errors: [err] });
+                    return;
+                  } else {
+                    res.status(200).send("Success");
+                    return;
+                  }
+                }
+              );
+            } else {
+              res.status(401).send("Old password doesn't match");
+              return;
+            }
+          });
+        } else {
+          res.status(401).send(err);
+          return;
+        }
+      });
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
 app.get("/testCookie", (req, res) => {
   console.log(req.cookies);
   console.log(decodeToken(req.cookies.token));
