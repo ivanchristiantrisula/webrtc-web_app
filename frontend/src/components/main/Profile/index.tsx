@@ -27,11 +27,12 @@ import {
   FormLabel,
 } from "@material-ui/core";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { TextFormat, Visibility, VisibilityOff } from "@material-ui/icons";
 import clsx from "clsx";
+import { InputFiles } from "typescript";
 
 const useStyle = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,10 +72,10 @@ const useStyle = makeStyles((theme: Theme) =>
   })
 );
 
-const initState = {
-  name: JSON.parse(localStorage.getItem("user")).name,
-  bio: JSON.parse(localStorage.getItem("user")).bio,
-};
+// const initState = {
+//   name: JSON.parse(localStorage.getItem("user")).name,
+//   bio: JSON.parse(localStorage.getItem("user")).bio,
+// };
 
 const ChangePasswordDialog = (props: {
   openDialog: boolean;
@@ -249,10 +250,11 @@ export default (props: { user: any }) => {
 
   let nameInputRef = useRef<TextFieldProps>();
   let bioInputRef = useRef<TextFieldProps>();
+  let fileInputRef = useRef<HTMLInputElement>();
 
   const resetFields = () => {
-    setName(initState.name);
-    setBio(initState.bio);
+    setName(props.user.name);
+    setBio(props.user.bio);
     nameInputRef.current.value = props.user.name;
     bioInputRef.current.value = props.user.bio;
     setEditMode(false);
@@ -283,6 +285,39 @@ export default (props: { user: any }) => {
       });
   };
 
+  const changePP = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImageSelected = (e: React.FormEvent<HTMLInputElement>) => {
+    let fd = new FormData();
+    fd.append(
+      "file",
+      e.currentTarget.files[0],
+      `${JSON.parse(localStorage.getItem("user"))._id}.png`
+    );
+    console.log(fd);
+    axios
+      .post(
+        `${process.env.REACT_APP_BACKEND_URI}/api/user/uploadProfilePicture`,
+        fd,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((res) => {
+        if (res.status == 200) {
+          window.location.href = "/";
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <>
       <Container className={classes.root}>
@@ -295,12 +330,14 @@ export default (props: { user: any }) => {
             }}
             className={classes.grid}
           >
-            <Avatar
-              className={classes.avatar}
-              src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${
-                JSON.parse(localStorage.getItem("user"))._id
-              }.png`}
-            />
+            <Box onClick={changePP}>
+              <Avatar
+                className={classes.avatar}
+                src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${
+                  JSON.parse(localStorage.getItem("user"))._id
+                }.png`}
+              />
+            </Box>
           </Grid>
 
           <Grid item xs={9} style={{ height: "20%" }} className={classes.grid}>
@@ -382,6 +419,17 @@ export default (props: { user: any }) => {
           setOpenChangePassDialog(false);
         }}
       />
+
+      {/* hidden input file */}
+      <Box display="hidden">
+        <input
+          type="file"
+          name=""
+          id="changeAvatarInput"
+          ref={fileInputRef}
+          onChange={handleImageSelected}
+        />
+      </Box>
     </>
   );
 };

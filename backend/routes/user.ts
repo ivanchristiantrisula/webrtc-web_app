@@ -6,6 +6,9 @@ let User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 let decodeToken = require("../library/decodeToken");
 import _ from "underscore";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 let app = express.Router();
 dotenv.config();
@@ -400,6 +403,27 @@ app.post("/changePassword", (req, res) => {
     res.status(400).send({ errors: ["No Cookie??? :("] });
   }
 });
+
+let storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./public/profilepictures");
+  },
+  filename: function (req, file, cb) {
+    console.log(file);
+    cb(null, file.originalname);
+  },
+});
+const upload = multer({
+  storage: storage,
+});
+
+app.post(
+  "/uploadProfilePicture",
+  upload.single("file" /* name attribute of <file> element in your form */),
+  (req: express.Request, res, next) => {
+    res.status(200).send("Success");
+  }
+);
 
 app.get("/testCookie", (req, res) => {
   console.log(req.cookies);

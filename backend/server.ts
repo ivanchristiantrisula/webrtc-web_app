@@ -12,7 +12,7 @@ const randomstring = require("randomstring");
 let userModel = require("./models/userModel");
 
 const app = express();
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + "/uploads"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -133,11 +133,14 @@ io.on("connection", (socket: Socket) => {
     });
   });
 
-  socket.on("notifyScreenSharing",(data)=>{
-    meetingRooms[data.roomID].forEach(sid => {
-      io.to(sid).emit("screenshareMode",{sid : socket.id, status : data.status})
+  socket.on("notifyScreenSharing", (data) => {
+    meetingRooms[data.roomID].forEach((sid) => {
+      io.to(sid).emit("screenshareMode", {
+        sid: socket.id,
+        status: data.status,
+      });
     });
-  })
+  });
 });
 
 server.listen(3001, () => {
