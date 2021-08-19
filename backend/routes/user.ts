@@ -9,6 +9,8 @@ import _ from "underscore";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import MBTIComp from "../library/compability.json";
+import { ObjectId } from "mongodb";
 
 let app = express.Router();
 dotenv.config();
@@ -396,6 +398,43 @@ app.post("/changePassword", (req, res) => {
           return;
         }
       });
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
+
+app.get("/getFriendsRecommendation", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+
+    if (user) {
+      let x;
+      User.findById(user._id, function (err, docs) {
+        x = docs;
+      });
+      User.find(
+        {
+          $and: [
+            { MBTI: { $in: MBTIComp[user.MBTI] } },
+            { _id: { $nin: [new ObjectId(user._id)] } },
+            { friends: { $not: { $all: [x] } } },
+          ],
+        },
+        function (err, docs) {
+          let result = docs.map(function (user) {
+            let found = user.friends.find((element) => element._id == x._id);
+            //console.log(user);
+            if (found === undefined) {
+              return user;
+            }
+          });
+
+          console.log(result);
+        }
+      );
     } else {
       res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
     }
