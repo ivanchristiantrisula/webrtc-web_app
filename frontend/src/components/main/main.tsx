@@ -1,6 +1,6 @@
 import { Grid, Paper, Box, createStyles, Theme } from "@material-ui/core";
 import { useState, useEffect, useRef } from "react";
-import Sidebar from "./Sidebar/sidebar";
+import Sidebar from "./Sidebar";
 import Friendlist from "./Friendlist/friendlist";
 import _, { omit } from "underscore";
 import Peer from "simple-peer";

@@ -296,7 +296,6 @@ export default (props: { user: any }) => {
       e.currentTarget.files[0],
       `${JSON.parse(localStorage.getItem("user"))._id}.png`
     );
-    console.log(fd);
     axios
       .post(
         `${process.env.REACT_APP_BACKEND_URI}/api/user/uploadProfilePicture`,

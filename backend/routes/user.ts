@@ -443,7 +443,7 @@ app.get("/getFriendsRecommendation", (req, res) => {
 
 let storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./public/profilepictures");
+    cb(null, "./uploads/profilepictures");
   },
   filename: function (req, file, cb) {
     console.log(file);
@@ -462,7 +462,6 @@ app.post(
       let user = decodeToken(req.cookies.token);
 
       if (user) {
-        console.log(req.body);
         let userData = {
           _id: user._id,
           name: user.name,
