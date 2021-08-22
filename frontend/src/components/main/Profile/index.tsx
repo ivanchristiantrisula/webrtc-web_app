@@ -334,7 +334,7 @@ export default (props: { user: any }) => {
               <Avatar
                 className={classes.avatar}
                 src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${
-                  JSON.parse(localStorage.getItem("user"))._id
+                  JSON.parse(localStorage.getItem("user")).profilepicture
                 }.png`}
               />
             </Box>

@@ -334,6 +334,7 @@ const App = () => {
               openMenu={(menu: string) => {
                 setOpenMenu(menu);
               }}
+              user={allUsers[userSocketID]}
             />
           </Grid>
           <Grid
@@ -409,7 +410,7 @@ const App = () => {
             xs
             className={`${classes.chatContainer} ${
               openMenu == "meeting" ||
-              openMenu == "findfriend" ||
+              openMenu == "personalitytest" ||
               openMenu == "profile"
                 ? classes.hidden
                 : ""

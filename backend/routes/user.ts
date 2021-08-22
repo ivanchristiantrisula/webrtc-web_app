@@ -28,6 +28,7 @@ app.post("/register", async (req, res) => {
       password: await bcrypt.hash(password, 10),
       email: email,
       username: username,
+      profilepicture: "default",
     });
     newUser.save(function (err, u) {
       if (err) return res.status(400).send({ errors: [err.message] });
@@ -57,6 +58,7 @@ app.post("/login", async (req, res) => {
           userData["username"] = doc.username;
           userData["MBTI"] = doc.MBTI;
           userData["bio"] = doc.bio;
+          userData["profilepicture"] = doc.profilepicture;
           let token = require("../library/generateToken")(userData);
 
           res.cookie("token", token, { httpOnly: false });
@@ -102,21 +104,12 @@ app.post("/addFriend", async (req, res) => {
         ],
         (err, doc) => {
           if (_.isEmpty(doc)) {
-            let targetData = {
-              _id: target._id,
-              name: target.name,
-              email: target.email,
-              username: target.username,
-            };
-
             let userData = {
               _id: user._id,
               name: user.name,
               email: user.email,
               username: user.username,
             };
-            // User.update({ _id: user._id }, { $push: { pendings: userData } });
-            // User.update({ _id: target._id }, { $push: { pendings: targetData } });
             User.updateOne(
               { _id: target._id },
               { $addToSet: { pendings: userData } },
@@ -420,19 +413,24 @@ app.get("/getFriendsRecommendation", (req, res) => {
           $and: [
             { MBTI: { $in: MBTIComp[user.MBTI] } },
             { _id: { $nin: [new ObjectId(user._id)] } },
-            { friends: { $not: { $all: [x] } } },
           ],
         },
         function (err, docs) {
           let result = docs.map(function (user) {
             let found = user.friends.find((element) => element._id == x._id);
             //console.log(user);
-            if (found === undefined) {
+            if (
+              user.friends.find((element) => element._id == x._id) ===
+                undefined &&
+              user.pendings.find((element) => element._id == x._id) ===
+                undefined &&
+              user.blocks.find((element) => element._id == x._id) === undefined
+            ) {
               return user;
             }
           });
 
-          console.log(result);
+          res.status(200).send(result);
         }
       );
     } else {
@@ -460,7 +458,37 @@ app.post(
   "/uploadProfilePicture",
   upload.single("file" /* name attribute of <file> element in your form */),
   (req: express.Request, res, next) => {
-    res.status(200).send("Success");
+    if (req.cookies) {
+      let user = decodeToken(req.cookies.token);
+
+      if (user) {
+        console.log(req.body);
+        let userData = {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          username: user.username,
+        };
+
+        User.updateOne(
+          { _id: user._id },
+          { $set: { profilepicture: user._id } },
+          (err, docs) => {
+            console.log(docs);
+            if (err) res.status(500).send({ errors: [err] });
+            return;
+          }
+        );
+
+        res.status(200).send({
+          user: userData,
+        });
+      } else {
+        res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+      }
+    } else {
+      res.status(400).send({ errors: ["No Cookie??? :("] });
+    }
   }
 );
 

@@ -106,7 +106,11 @@ function App(props: any) {
         >
           <ListItemIcon
             onClick={() => {
-              props.openMenu("findfriend");
+              if (props.user.MBTI === "" || props.user.MBTI === undefined) {
+                props.openMenu("personalitytest");
+              } else {
+                props.openMenu("findfriend");
+              }
             }}
           >
             <PersonAddIcon
@@ -131,7 +135,7 @@ function App(props: any) {
           >
             <Avatar
               src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${
-                JSON.parse(localStorage.getItem("user"))._id
+                JSON.parse(localStorage.getItem("user")).profilepicture
               }.png`}
             />
           </ListItemIcon>
