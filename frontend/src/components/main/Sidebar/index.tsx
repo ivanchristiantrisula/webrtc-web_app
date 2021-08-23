@@ -86,6 +86,21 @@ function App(props: { user: any; openMenu: Function }) {
   const openProfilePopper = (e: React.MouseEvent<HTMLDivElement>) => {
     setPopperAnchorEl(e.currentTarget);
   };
+
+  const handleLogOut = () => {
+    localStorage.clear();
+
+    let cookies = document.cookie.split(";");
+
+    for (let i = 0; i < cookies.length; i++) {
+      let cookie = cookies[i];
+      let eqPos = cookie.indexOf("=");
+      let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
+
+    window.location.href = "/";
+  };
   return (
     <React.Fragment>
       <List>
@@ -232,7 +247,7 @@ function App(props: { user: any; openMenu: Function }) {
           handleClickProfile={() => {
             props.openMenu("profile");
           }}
-          handleClickLogout={() => {}}
+          handleClickLogout={handleLogOut}
         />
       </Popper>
     </React.Fragment>
