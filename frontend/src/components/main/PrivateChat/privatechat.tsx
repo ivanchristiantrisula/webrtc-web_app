@@ -11,6 +11,7 @@ import UserPicker from "../UserPicker";
 import _ from "underscore";
 import ReplyCard from "./replyCard";
 import { Box, createStyles, Grid, makeStyles } from "@material-ui/core";
+import Report from "../Report";
 
 const useStyle = makeStyles(() =>
   createStyles({
@@ -46,13 +47,26 @@ const useStyle = makeStyles(() =>
   })
 );
 
-export default (props: any) => {
+interface a {
+  userSocketID: string;
+  recipientSocketID: string;
+  peer: any;
+  socket: any;
+  chat: any;
+  addChatFromSender: Function;
+  users: any;
+  sendForward: Function;
+  myInfo: any;
+}
+
+export default (props: a) => {
   let classes = useStyle();
 
   let [chat, setChat] = useState<any[]>([]);
   let [videoCall, setVideoCall] = useState(false);
   let [openUserPickerModal, setOpenUserPickerModal] = useState(false);
   let [replyChat, setReplyChat] = useState({});
+  let [reportChat, setReportChat] = useState<any>(null);
   //let [forwardChat, setForwardChat] = useState({});
 
   let forwardChat = useRef({});
@@ -127,7 +141,10 @@ export default (props: any) => {
   };
 
   const handleReport = (chat: any, targetSID: any) => {
-    alert("report msg");
+    setReportChat({
+      target: targetSID,
+      chat: chat,
+    });
   };
 
   const sendForward = (users: {}) => {
@@ -214,6 +231,12 @@ export default (props: any) => {
         multipleUser={true}
         title="Foward"
         handleClose={() => setOpenUserPickerModal(false)}
+      />
+      <Report
+        open={!_.isEmpty(reportChat)}
+        chat={reportChat ? reportChat.chat : {}}
+        targetUID={reportChat ? props.users[reportChat.chat.from]._id : ""}
+        closeDialog={() => setReportChat(null)}
       />
     </div>
   );

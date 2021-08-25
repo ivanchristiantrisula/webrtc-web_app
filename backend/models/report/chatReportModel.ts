@@ -1,42 +1,34 @@
+import { ObjectID } from "bson";
 import { arrayify } from "tslint/lib/utils";
 
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-  name: {
+const reportSchema = new mongoose.Schema({
+  reporter: {
+    type: ObjectID,
+    required: true,
+  },
+  reportee: {
+    type: ObjectID,
+    required: true,
+  },
+  type: {
+    //chat or profile
     type: String,
     required: true,
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
+  category: {
     type: String,
     required: true,
   },
-  profilePicture: {
+  proof: {
+    type: Object,
+    required: true,
+  },
+  description: {
     type: String,
-    required: false,
-  },
-  friends: {
-    type: Array,
-    required: false,
-  },
-  blocks: {
-    type: Array,
-    required: false,
-  },
-  pendings: {
-    type: Array,
-    required: false,
+    required: true,
   },
 });
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Report", reportSchema);

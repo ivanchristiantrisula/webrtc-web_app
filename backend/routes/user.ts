@@ -3,6 +3,7 @@ const { MongoClient } = require("mongodb");
 let mongoose = require("mongoose");
 import dotenv from "dotenv";
 let User = require("../models/userModel");
+let Report = require("../models/report/chatReportModel");
 const bcrypt = require("bcrypt");
 let decodeToken = require("../library/decodeToken");
 import _ from "underscore";
@@ -490,6 +491,32 @@ app.post(
     }
   }
 );
+
+app.post("/report", (req, res) => {
+  if (req.cookies) {
+    let user = decodeToken(req.cookies.token);
+
+    if (user) {
+      let newReport = new Report({
+        reporter: req.body.reporter,
+        reportee: req.body.reportee,
+        type: req.body.proof ? "chat" : "profile",
+        category: req.body.category,
+        proof: req.body.proof || null,
+        description: req.body.description,
+      });
+
+      newReport.save(function (err, u) {
+        if (err) return res.status(500).send({ errors: [err.message] });
+        return res.status(200).send("OK");
+      });
+    } else {
+      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+    }
+  } else {
+    res.status(400).send({ errors: ["No Cookie??? :("] });
+  }
+});
 
 app.get("/testCookie", (req, res) => {
   console.log(req.cookies);
