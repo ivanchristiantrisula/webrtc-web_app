@@ -504,6 +504,8 @@ app.post("/report", (req, res) => {
         category: req.body.category,
         proof: req.body.proof || null,
         description: req.body.description,
+        status: "Open",
+        timestamp: new Date(),
       });
 
       newReport.save(function (err, u) {

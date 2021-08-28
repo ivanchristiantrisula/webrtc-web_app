@@ -1,4 +1,5 @@
 import { ObjectID } from "bson";
+import { Timestamp } from "mongodb";
 import { arrayify } from "tslint/lib/utils";
 
 const mongoose = require("mongoose");
@@ -28,6 +29,14 @@ const reportSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true,
+  },
+  status: {
+    type: String,
+    required: true,
+  },
+  timestamp: {
+    type: Date,
+    require: true,
   },
 });
 

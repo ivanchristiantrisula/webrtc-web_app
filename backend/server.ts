@@ -3,6 +3,7 @@ import { Socket } from "socket.io";
 const dotenv = require("dotenv").config();
 const mongoose = require("mongoose");
 const userRouter = require("./routes/user");
+const reportRouter = require("./routes/report");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const http = require("http");
@@ -25,6 +26,7 @@ app.use(cors(corsConfig));
 app.use(cookieParser());
 
 app.use("/api/user/", userRouter);
+app.use("/api/report/", reportRouter);
 
 mongoose.connect(process.env.DATABASE_URI, {
   useNewUrlParser: true,
