@@ -500,7 +500,7 @@ app.post("/report", (req, res) => {
       let newReport = new Report({
         reporter: req.body.reporter,
         reportee: req.body.reportee,
-        type: req.body.proof ? "chat" : "profile",
+        type: req.body.proof ? "Chat" : "Profile",
         category: req.body.category,
         proof: req.body.proof || null,
         description: req.body.description,

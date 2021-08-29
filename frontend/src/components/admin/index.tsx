@@ -9,8 +9,10 @@ import {
 } from "@material-ui/core";
 import { useState } from "react";
 import { classicNameResolver } from "typescript";
+import _ from "underscore";
 import AdminReports from "./reports";
 import Sidebar from "./sidebar";
+import ReportDetail from "./reports/detail";
 
 const useStyles = makeStyles((theme: Theme) => ({
   sidebar: {
@@ -23,6 +25,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function AdminPage() {
   const classes = useStyles();
   const [openMenu, setOpenMenu] = useState("reports");
+  const [reportDetail, setReportDetail] = useState({});
   return (
     <Box>
       <Grid container>
@@ -32,10 +35,16 @@ export default function AdminPage() {
         </Grid>
         {/* MID */}
         <Grid item className={classes.midContainer}>
-          <AdminReports />
+          <AdminReports
+            openReportDetail={(report: any) => setReportDetail(report)}
+          />
         </Grid>
         {/* RIGHT */}
-        <Grid item xs className={classes.rightContainer}></Grid>
+        <Grid item xs className={classes.rightContainer}>
+          {!_.isEmpty(reportDetail) ? (
+            <ReportDetail report={reportDetail} />
+          ) : null}
+        </Grid>
       </Grid>
     </Box>
   );
