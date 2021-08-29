@@ -140,10 +140,19 @@ export default (props: a) => {
     setReplyChat(chat);
   };
 
-  const handleReport = (chat: any, targetSID: any) => {
+  const handleReport = (chat: any, idx : number) => {
+    let chats = [];
+    
+    //get previous and afterward the reported message so admin can get better context about the situation
+    props.chat[idx-1]!==undefined ? chats.push(props.chat[idx-1]) : chats.push(null)
+    props.chat[idx]!==undefined ? chats.push(props.chat[idx]) : chats.push(null)
+    props.chat[idx+1]!==undefined ? chats.push(props.chat[idx+1]) : chats.push(null)
+
     setReportChat({
-      target: targetSID,
-      chat: chat,
+      target: props.recipientSocketID,
+      targetUID : props.users[props.recipientSocketID]._id,
+      chat: chats,
+      idx : idx
     });
   };
 
@@ -186,14 +195,14 @@ export default (props: a) => {
           <div className={classes.chatContainer1}>
             {props.chat !== undefined ? (
               <>
-                {props.chat.map(function (obj: any) {
+                {props.chat.map(function (obj: any, idx : number) {
                   return (
                     <ChatBubble
                       data={obj}
                       socketID={props.userSocketID}
                       handleReply={handleReply}
                       handleForward={handleForward}
-                      handleReport={handleReport}
+                      handleReport={(chat : any)=>handleReport(chat, idx)}
                     />
                   );
                 })}
@@ -235,7 +244,7 @@ export default (props: a) => {
       <Report
         open={!_.isEmpty(reportChat)}
         chat={reportChat ? reportChat.chat : {}}
-        targetUID={reportChat ? props.users[reportChat.chat.from]._id : ""}
+        targetUID={reportChat ? reportChat.targetUID : ""}
         closeDialog={() => setReportChat(null)}
       />
     </div>
