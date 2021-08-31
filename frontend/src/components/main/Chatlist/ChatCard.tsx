@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function (props: any) {
+export default function (props: { user: any; lastMsg: any }) {
   const classes = useStyles();
 
   return (

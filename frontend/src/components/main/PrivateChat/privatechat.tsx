@@ -140,19 +140,42 @@ export default (props: a) => {
     setReplyChat(chat);
   };
 
-  const handleReport = (chat: any, idx : number) => {
+  const handleReport = (chat: any, idx: number) => {
     let chats = [];
-    
-    //get previous and afterward the reported message so admin can get better context about the situation
-    props.chat[idx-1]!==undefined ? chats.push(props.chat[idx-1]) : chats.push(null)
-    props.chat[idx]!==undefined ? chats.push(props.chat[idx]) : chats.push(null)
-    props.chat[idx+1]!==undefined ? chats.push(props.chat[idx+1]) : chats.push(null)
+    let targetUID = props.users[props.recipientSocketID]._id;
+
+    //get previous and afterward the reported message so admin can get better context about the whole situation
+    props.chat[idx - 1] !== undefined
+      ? chats.push(props.chat[idx - 1])
+      : chats.push(null);
+
+    if (props.chat[idx] !== undefined) {
+      //mark as reported
+      let a = props.chat[idx];
+      a.isReported = true;
+      chats.push(a);
+    } else {
+      chats.push(null);
+    }
+
+    props.chat[idx + 1] !== undefined
+      ? chats.push(props.chat[idx + 1])
+      : chats.push(null);
+
+    //replace socket id with user id
+    chats.forEach((element) => {
+      if (element.from === props.userSocketID) {
+        element.from = props.myInfo._id;
+      } else {
+        element.from = targetUID;
+      }
+    });
 
     setReportChat({
       target: props.recipientSocketID,
-      targetUID : props.users[props.recipientSocketID]._id,
+      targetUID: targetUID,
       chat: chats,
-      idx : idx
+      idx: idx,
     });
   };
 
@@ -195,14 +218,14 @@ export default (props: a) => {
           <div className={classes.chatContainer1}>
             {props.chat !== undefined ? (
               <>
-                {props.chat.map(function (obj: any, idx : number) {
+                {props.chat.map(function (obj: any, idx: number) {
                   return (
                     <ChatBubble
                       data={obj}
                       socketID={props.userSocketID}
                       handleReply={handleReply}
                       handleForward={handleForward}
-                      handleReport={(chat : any)=>handleReport(chat, idx)}
+                      handleReport={(chat: any) => handleReport(chat, idx)}
                     />
                   );
                 })}

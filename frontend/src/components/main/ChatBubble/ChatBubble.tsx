@@ -5,10 +5,34 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Typography from "@material-ui/core/Typography";
 import ReplyBubble from "./replyBubble";
+import { makeStyles, Theme } from "@material-ui/core";
+import { classicNameResolver } from "typescript";
 
-export default function (props: any) {
+const useStyles = makeStyles((theme: Theme) => ({
+  reportBubble: {
+    border: "solid red 2px",
+  },
+}));
+
+export default function (props: {
+  data: any;
+  socketID: string;
+  handleReply?: Function;
+  handleForward?: Function;
+  handleReport?: Function;
+}) {
+  const classes = useStyles();
   let [mouseX, setMouseX] = useState(null as number);
   let [mouseY, setMouseY] = useState(null as number);
+  let [border, setBorder] = useState("");
+
+  useEffect(() => {
+    if (props.data.isReported) {
+      setBorder("sold red 1px");
+    } else {
+      setBorder("");
+    }
+  }, []);
 
   const initialState = {
     mouseX: null as any,
@@ -50,7 +74,9 @@ export default function (props: any) {
     <>
       <ul>
         <li
-          className={props.data.from == props.socketID ? "me" : "them"}
+          className={`${props.data.from == props.socketID ? "me" : "them"}  ${
+            props.data.isReported ? classes.reportBubble : ""
+          }`}
           onContextMenu={handleContextMenu}
         >
           {renderReplyBubble()}
@@ -82,7 +108,7 @@ export default function (props: any) {
             handleClose();
           }}
         >
-          Foward
+          Forward
         </MenuItem>
         <MenuItem
           onClick={() => {
