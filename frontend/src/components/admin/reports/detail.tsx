@@ -18,6 +18,7 @@ import {
   FormHelperText,
 } from "@material-ui/core";
 import { MoreVert as MoreVertIcon } from "@material-ui/icons";
+import axios from "axios";
 import { report } from "process";
 import { useState } from "react";
 import ChatBubble from "../../main/ChatBubble/ChatBubble";
@@ -117,10 +118,33 @@ const ReportProof = (props: { report: any }) => {
 };
 
 const ReportAction = (props: { report: any }) => {
-  const [action, setAction] = useState("");
+  const [ban, setBan] = useState<Boolean>();
+
+  const handleSubmit = () => {
+    axios
+      .post(
+        `${process.env.REACT_APP_BACKEND_URI}/api/report/closeReport`,
+        {
+          reportID: props.report._id,
+          reporterID: props.report.reporter,
+          reporteeID: props.report.reportee,
+          banReportee: ban,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        if (res.status === 200) {
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setAction(event.target.value as string);
+    setBan(event.target.value == 1 ? true : false);
   };
   return (
     <Card>
@@ -135,13 +159,18 @@ const ReportAction = (props: { report: any }) => {
               onChange={handleChange}
               fullWidth
             >
-              <MenuItem value={"ban"}>Ban User</MenuItem>
-              <MenuItem value={"none"}>Do Nothing</MenuItem>
+              <MenuItem value={1}>Ban User</MenuItem>
+              <MenuItem value={0}>Do Nothing</MenuItem>
             </Select>
             <FormHelperText>Some important helper text</FormHelperText>
           </FormControl>
           <FormControl fullWidth>
-            <Button variant="contained" color="primary" fullWidth>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleSubmit}
+            >
               Submit
             </Button>
           </FormControl>
@@ -157,16 +186,18 @@ const DetailReport = (props: { report: any }) => {
       <Grid container spacing={5}>
         <Grid item xs={12}>
           <Box>
-            <ReportProof report={props.report} />
+            <ReportInformation report={props.report} />
           </Box>
         </Grid>
         <Grid item xs={12} md={8}>
           <Box width>
-            <ReportInformation report={props.report} />
+            <ReportProof report={props.report} />
           </Box>
         </Grid>
         <Grid item xs={12} md={4}>
-          <ReportAction report={props.report} />
+          {props.report.status !== "Closed" ? (
+            <ReportAction report={props.report} />
+          ) : null}
         </Grid>
       </Grid>
     </Container>

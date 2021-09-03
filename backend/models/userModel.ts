@@ -1,3 +1,4 @@
+import { ObjectID } from "mongodb";
 import { arrayify } from "tslint/lib/utils";
 
 const mongoose = require("mongoose");
@@ -49,6 +50,18 @@ const userSchema = new mongoose.Schema({
   profilepicture: {
     type: String,
     required: true,
+  },
+  isBanned: {
+    type: Boolean,
+    required: false,
+  },
+  bannedDate: {
+    type: Date,
+    required: false,
+  },
+  banReportID: {
+    type: ObjectID,
+    required: false,
   },
 });
 

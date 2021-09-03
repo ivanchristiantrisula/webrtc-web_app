@@ -54,7 +54,7 @@ export default function Report(props: {
     };
     console.log(payload);
     axios
-      .post(`${process.env.REACT_APP_BACKEND_URI}/api/user/report`, payload, {
+      .post(`${process.env.REACT_APP_BACKEND_URI}/api/report/create`, payload, {
         withCredentials: true,
       })
       .then((res) => {

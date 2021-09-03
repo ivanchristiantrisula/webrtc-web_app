@@ -38,6 +38,14 @@ const reportSchema = new mongoose.Schema({
     type: Date,
     require: true,
   },
+  closedDate: {
+    type: Date,
+    required: false,
+  },
+  isReporteeBanned: {
+    type: Boolean,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model("Report", reportSchema);

@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import React, { useState } from "react";
 import ReportIcon from "@material-ui/icons/Report";
+import CloseIcon from "@material-ui/icons/Close";
 import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -83,6 +84,24 @@ function App(props: { openMenu: Function }) {
               className={
                 openMenu === "reports" ? classes.openIcon : classes.icon
               }
+              fontSize="large"
+            />
+          </ListItemIcon>
+        </ListItem>
+        <ListItem
+          button
+          className={`${openMenu === "bans" ? classes.open : ""} ${
+            classes.iconContainer
+          }`}
+          onClick={() => {
+            setOpenMenu("bans");
+            props.openMenu("bans");
+          }}
+        >
+          <ListItemIcon>
+            <CloseIcon
+              style={{ display: "block", margin: "auto" }}
+              className={openMenu === "bans" ? classes.openIcon : classes.icon}
               fontSize="large"
             />
           </ListItemIcon>

@@ -30,6 +30,8 @@ app.post("/register", async (req, res) => {
       email: email,
       username: username,
       profilepicture: "default",
+      isBanned: true,
+      bannedDate: null,
     });
     newUser.save(function (err, u) {
       if (err) return res.status(400).send({ errors: [err.message] });
@@ -492,32 +494,38 @@ app.post(
   }
 );
 
-app.post("/report", (req, res) => {
-  if (req.cookies) {
-    let user = decodeToken(req.cookies.token);
+app.get("/getBannedUsers", async (req, res) => {
+  let users = await User.aggregate([
+    {
+      $lookup: {
+        from: "reports",
+        localField: "banReportID",
+        foreignField: "_id",
+        as: "report",
+      },
+    },
+    { $match: { isBanned: true } },
+  ]);
 
-    if (user) {
-      let newReport = new Report({
-        reporter: req.body.reporter,
-        reportee: req.body.reportee,
-        type: req.body.proof ? "Chat" : "Profile",
-        category: req.body.category,
-        proof: req.body.proof || null,
-        description: req.body.description,
-        status: "Open",
-        timestamp: new Date(),
-      });
+  res.status(200).send(users);
+});
 
-      newReport.save(function (err, u) {
-        if (err) return res.status(500).send({ errors: [err.message] });
-        return res.status(200).send("OK");
-      });
-    } else {
-      res.status(400).send({ errors: ["Invalid token. Try re-login?"] });
+app.post("/unbanUser", (req, res) => {
+  User.updateOne(
+    { _id: req.body.userID },
+    {
+      $set: {
+        bannedDate: null,
+        banReportID: null,
+        isBanned: false,
+      },
+    },
+    (err, docs) => {
+      console.log(docs);
+      if (err) res.status(500).send({ errors: [err] });
     }
-  } else {
-    res.status(400).send({ errors: ["No Cookie??? :("] });
-  }
+  );
+  res.status(200).send("User unbanned!");
 });
 
 app.get("/testCookie", (req, res) => {
