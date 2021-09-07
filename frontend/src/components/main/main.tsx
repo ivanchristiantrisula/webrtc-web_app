@@ -16,9 +16,12 @@ import AlertDialog from "./AlertDialog";
 import FriendFinder from "./FindFriend";
 import FindFriend from "./FindFriend";
 import Profile from "./Profile/";
+import streamSaver from "streamsaver";
 
 const io = require("socket.io-client");
 require("dotenv").config();
+
+const worker = new Worker("../worker.js");
 
 //import Peer from "simple-peer";
 
@@ -69,10 +72,10 @@ const App = () => {
   let [chats, setChats] = useState({});
   let [chatConnectionStatus, setChatConnectionStatus] = useState([]);
   let [openMenu, setOpenMenu] = useState("friendlist");
-  let [openSearchUserModal, setOpenSearchUserModal] = useState(false);
   let [onlineFriends, setOnlineFriends] = useState({});
   let [meetingID, setMeetingID] = useState("");
   let [meetingMode, setMeetingMode] = useState(false);
+  let fileTransfers = useRef({});
 
   let [alertDialogProps, setAlertDialogProps] = useState(
     initState.meetingProps
@@ -209,23 +212,38 @@ const App = () => {
     });
 
     peers.current[socket_id].on("data", (data: any) => {
-      let parsedData = JSON.parse(data.toString());
-      if (parsedData.kind) {
-        let x = chats;
-        if (x[socket_id] === undefined) {
-          x[socket_id] = new Array(JSON.parse(data.toString()));
-        } else {
-          x[socket_id].push(JSON.parse(data.toString()));
+      // let parsedData = JSON.parse(data.toString());
+      // if (parsedData.kind) {
+      //   let x = chats;
+      //   if (x[socket_id] === undefined) {
+      //     x[socket_id] = new Array(JSON.parse(data.toString()));
+      //   } else {
+      //     x[socket_id].push(JSON.parse(data.toString()));
+      //   }
+      //   setChats({ ...x });
+      // }
+      // console.log(parsedData);
+      // enqueueSnackbar(
+      //   `${parsedData.senderInfo.name} \n ${parsedData.message}`,
+      //   {
+      //     variant: "success",
+      //   }
+      // );
+
+      if (data.toString().includes("done")) {
+        //setGotFile(true);
+        //const parsed = JSON.parse(data);
+        //fileNameRef.current = parsed.fileName;
+        //alert("done");
+        download(socket_id);
+      } else {
+        console.log(data);
+
+        if (fileTransfers.current[socket_id] === undefined) {
+          fileTransfers.current[socket_id] = new Worker("../worker.js");
         }
-        setChats({ ...x });
+        fileTransfers.current[socket_id].postMessage(data);
       }
-      console.log(parsedData);
-      enqueueSnackbar(
-        `${parsedData.senderInfo.name} \n ${parsedData.message}`,
-        {
-          variant: "success",
-        }
-      );
     });
 
     peers.current[socket_id].on("connect", () => {
@@ -235,6 +253,19 @@ const App = () => {
       setChatConnectionStatus(temp);
     });
   };
+
+  function download(socket_id: string) {
+    //setGotFile(false);
+    fileTransfers.current[socket_id].postMessage("download");
+    fileTransfers.current[socket_id].addEventListener(
+      "message",
+      (event: any) => {
+        const stream = event.data.stream();
+        const fileStream = streamSaver.createWriteStream("tes");
+        stream.pipeTo(fileStream);
+      }
+    );
+  }
 
   const startPeerConnection = (socketRecipient: string) => {
     if (peers.current[socketRecipient] === undefined) {

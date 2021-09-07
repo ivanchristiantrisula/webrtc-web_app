@@ -68,7 +68,7 @@ export default (props: a) => {
   let [replyChat, setReplyChat] = useState({});
   let [reportChat, setReportChat] = useState<any>(null);
   //let [forwardChat, setForwardChat] = useState({});
-
+  const worker = new Worker("../worker.js");
   let forwardChat = useRef({});
 
   useEffect(() => {
@@ -109,25 +109,52 @@ export default (props: a) => {
       props.socket.emit("startVideoCall", { to: props.recipientSocketID });
   };
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     //alert("sadf");
-    const spf = new SimplePeerFiles();
+    // const spf = new SimplePeerFiles();
+    // props.addChatFromSender({
+    //   senderInfo: props.myInfo,
+    //   from: props.userSocketID,
+    //   kind: "direct",
+    //   type: file.type,
+    //   timestamp: new Date().getTime(),
+    //   file: file,
+    // });
+    // spf.send(props.peer, "1", file).then((transfer: any) => {
+    //   transfer.on("progress", (sentBytes: any) => {
+    //     console.log(sentBytes);
+    //   });
+    //   transfer.start();
+    // });
+    // const MAXIMUM_MESSAGE_SIZE = 65535;
+    // const END_OF_FILE_MESSAGE = "done";
 
-    props.addChatFromSender({
-      senderInfo: props.myInfo,
-      from: props.userSocketID,
-      kind: "direct",
-      type: file.type,
-      timestamp: new Date().getTime(),
-      file: file,
+    const peer = props.peer;
+    const stream = file.stream();
+    const reader = stream.getReader();
+
+    reader.read().then((obj) => {
+      handlereading(obj.done, obj.value);
     });
 
-    spf.send(props.peer, "1", file).then((transfer: any) => {
-      transfer.on("progress", (sentBytes: any) => {
-        console.log(sentBytes);
+    function handlereading(done: any, value: any) {
+      if (done) {
+        peer.write(JSON.stringify({ done: true, fileName: file.name }));
+        return;
+      }
+
+      peer.send(value);
+      reader.read().then((obj) => {
+        handlereading(obj.done, obj.value);
       });
-      transfer.start();
-    });
+    }
+
+    // const arrayBuffer = await file.arrayBuffer();
+    // console.log(arrayBuffer);
+    // for (let i = 0; i < arrayBuffer.byteLength; i += MAXIMUM_MESSAGE_SIZE) {
+    //   peer.send(arrayBuffer.slice(i, i + MAXIMUM_MESSAGE_SIZE));
+    // }
+    // peer.send(END_OF_FILE_MESSAGE);
   };
 
   const handleForward = (chat: any, targetSID: any) => {
