@@ -110,51 +110,25 @@ export default (props: a) => {
   };
 
   const handleFileUpload = async (file: File) => {
-    //alert("sadf");
-    // const spf = new SimplePeerFiles();
-    // props.addChatFromSender({
-    //   senderInfo: props.myInfo,
-    //   from: props.userSocketID,
-    //   kind: "direct",
-    //   type: file.type,
-    //   timestamp: new Date().getTime(),
-    //   file: file,
-    // });
-    // spf.send(props.peer, "1", file).then((transfer: any) => {
-    //   transfer.on("progress", (sentBytes: any) => {
-    //     console.log(sentBytes);
-    //   });
-    //   transfer.start();
-    // });
-    // const MAXIMUM_MESSAGE_SIZE = 65535;
-    // const END_OF_FILE_MESSAGE = "done";
-
+    const MAXIMUM_CHUNK_SIZE = 16 * 1024; //max size 16kb
     const peer = props.peer;
-    const stream = file.stream();
-    const reader = stream.getReader();
 
-    reader.read().then((obj) => {
-      handlereading(obj.done, obj.value);
-    });
-
-    function handlereading(done: any, value: any) {
-      if (done) {
-        peer.write(JSON.stringify({ done: true, fileName: file.name }));
-        return;
-      }
-
-      peer.send(value);
-      reader.read().then((obj) => {
-        handlereading(obj.done, obj.value);
-      });
+    const arrayBuffer = await file.arrayBuffer();
+    for (let i = 0; i < arrayBuffer.byteLength; i += MAXIMUM_CHUNK_SIZE) {
+      peer.write(Buffer.from(arrayBuffer.slice(i, i + MAXIMUM_CHUNK_SIZE))); //split file to smaller chunk size
     }
-
-    // const arrayBuffer = await file.arrayBuffer();
-    // console.log(arrayBuffer);
-    // for (let i = 0; i < arrayBuffer.byteLength; i += MAXIMUM_MESSAGE_SIZE) {
-    //   peer.send(arrayBuffer.slice(i, i + MAXIMUM_MESSAGE_SIZE));
-    // }
-    // peer.send(END_OF_FILE_MESSAGE);
+    peer.write(
+      JSON.stringify({
+        type: "file",
+        done: true,
+        name: file.name,
+        fileType: file.type,
+        senderInfo: props.myInfo,
+        from: props.userSocketID,
+        kind: "direct",
+        timestamp: new Date().getTime(),
+      })
+    );
   };
 
   const handleForward = (chat: any, targetSID: any) => {

@@ -101,56 +101,57 @@ const App = () => {
     });
 
     socket?.current?.on("connect", () => {
-      console.log("Connected to signalling server");
+      console.info("Connected to signalling server");
       setSocketConnection(true);
     });
 
     socket?.current?.on("yourID", (id: string) => {
-      console.log("User Socket ID : " + id);
+      console.info("User Socket ID : " + id);
       setUserSocketID(id);
     });
     socket?.current?.on("allUsers", (users: any) => {
-      console.log("Fetched all users");
+      console.info("Fetched all users");
       let a = users;
       setAllUsers(a);
     });
 
     socket?.current?.on("disconnect", () => {
       setSocketConnection(false);
-      console.log("Disconnected! Reconnecting to signalling server");
+      console.info("Disconnected! Reconnecting to signalling server");
     });
 
-    socket.current.on("sdpTransfer", (data: any) => {
-      console.log(data);
-      // peers.current[data.from].signal(data.signal);
-      if (peers.current[data.from] !== undefined) {
-        console.log(peers.current[data.from]);
-        peers.current[data.from].signal(data.signal);
-      } else {
-        //set as receiver
-        addPeer(data.from, false);
-        peers.current[data.from].signal(data.signal);
-        setOpenChatSocket(data.from);
-      }
-    });
+    socket.current.on("sdpTransfer", handleReceivingSDP);
 
-    socket.current.on("meetingInvitation", (data: any) => {
-      setMeetingID(data.meetingID);
-      setAlertDialogProps({
-        open: true,
-        title: "You are invited to join a meeting",
-        body: "User XXX invited you to join their meeting.",
-        positiveTitle: "Join meeting",
-        negativeTitle: "Decline Meeting",
-        fromSocket: data.from,
-      });
-    });
+    socket.current.on("meetingInvitation", handleReceivingMeetingInvitation);
 
     //close socket connection when tab is closed by user
     window.onbeforeunload = function () {
       socket.onclose = function () {}; // disable onclose handler first
       socket.close();
     };
+  };
+
+  const handleReceivingSDP = (data: any) => {
+    if (peers.current[data.from] !== undefined) {
+      peers.current[data.from].signal(data.signal);
+    } else {
+      //set as receiver
+      addPeer(data.from, false);
+      peers.current[data.from].signal(data.signal);
+      setOpenChatSocket(data.from);
+    }
+  };
+
+  const handleReceivingMeetingInvitation = (data: any) => {
+    setMeetingID(data.meetingID);
+    setAlertDialogProps({
+      open: true,
+      title: "You are invited to join a meeting",
+      body: "User XXX invited you to join their meeting.",
+      positiveTitle: "Join meeting",
+      negativeTitle: "Decline Meeting",
+      fromSocket: data.from,
+    });
   };
 
   const addPeer = (
@@ -212,37 +213,57 @@ const App = () => {
     });
 
     peers.current[socket_id].on("data", (data: any) => {
-      // let parsedData = JSON.parse(data.toString());
-      // if (parsedData.kind) {
-      //   let x = chats;
-      //   if (x[socket_id] === undefined) {
-      //     x[socket_id] = new Array(JSON.parse(data.toString()));
-      //   } else {
-      //     x[socket_id].push(JSON.parse(data.toString()));
-      //   }
-      //   setChats({ ...x });
-      // }
-      // console.log(parsedData);
-      // enqueueSnackbar(
-      //   `${parsedData.senderInfo.name} \n ${parsedData.message}`,
-      //   {
-      //     variant: "success",
-      //   }
-      // );
+      let dataType = "";
+      if (Buffer.isBuffer(data)) dataType = "buffer";
+      if (typeof data === "string") dataType = "string";
 
-      if (data.toString().includes("done")) {
-        //setGotFile(true);
-        //const parsed = JSON.parse(data);
-        //fileNameRef.current = parsed.fileName;
-        //alert("done");
-        download(socket_id);
-      } else {
-        console.log(data);
+      if (dataType === "buffer") {
+        const isJsonParsable = (x: Buffer) => {
+          try {
+            JSON.parse(x.toString());
+          } catch (e) {
+            return false;
+          }
+          return true;
+        };
 
-        if (fileTransfers.current[socket_id] === undefined) {
-          fileTransfers.current[socket_id] = new Worker("../worker.js");
+        if (isJsonParsable(data)) {
+          data = JSON.parse(data.toString());
+          console.log(data);
+          if (data.type === "file") {
+            if (data.done) {
+              download(socket_id, data.name);
+            }
+          } else if (data.type === "text") {
+            let parsedData = data;
+            if (parsedData.kind) {
+              let x = chats;
+              if (x[socket_id] === undefined) {
+                x[socket_id] = new Array(parsedData);
+              } else {
+                x[socket_id].push(parsedData);
+              }
+              setChats({ ...x });
+            }
+            console.log(parsedData);
+            enqueueSnackbar(
+              `${parsedData.senderInfo.name} \n ${parsedData.message}`,
+              {
+                variant: "success",
+              }
+            );
+          }
+        } else {
+          //IF DATA ISNT PARSEABLE, THEN IT HAS TO BE ARRAY BUFFER
+          if (fileTransfers.current[socket_id] === undefined)
+            //CHECK IF SERVICE WORKER IS AVAILABLE FOR THIS PEER
+            fileTransfers.current[socket_id] = new Worker("../worker.js"); //CREATE NEW SERVICE WORKER TO RECEIVE ARRAY BUFFER
+
+          fileTransfers.current[socket_id].postMessage(
+            new Uint8Array(data).buffer //convert buffer to arraybuffer
+          );
         }
-        fileTransfers.current[socket_id].postMessage(data);
+      } else if (dataType == "string") {
       }
     });
 
@@ -254,14 +275,14 @@ const App = () => {
     });
   };
 
-  function download(socket_id: string) {
+  function download(socket_id: string, name: string) {
     //setGotFile(false);
     fileTransfers.current[socket_id].postMessage("download");
     fileTransfers.current[socket_id].addEventListener(
       "message",
       (event: any) => {
         const stream = event.data.stream();
-        const fileStream = streamSaver.createWriteStream("tes");
+        const fileStream = streamSaver.createWriteStream(name);
         stream.pipeTo(fileStream);
       }
     );
@@ -313,12 +334,11 @@ const App = () => {
         setOnlineFriends(intersects);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
   const forwardChat = (payload: any, sid: string) => {
-    console.log({ payload: payload, sid: sid });
     //check if user is already connected with target peer
     if (peers.current[sid] !== undefined) {
       peers.current[sid].send(Buffer.from(JSON.stringify(payload)));
