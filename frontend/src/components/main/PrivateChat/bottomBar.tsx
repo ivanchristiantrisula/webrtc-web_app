@@ -12,7 +12,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function (props: any) {
+export default function (props: {
+  handleFileUpload: Function;
+  handleSendText: Function;
+  isUploadingFile: boolean;
+}) {
   const classes = useStyles();
   let [text, setText] = useState("");
   let fileInput = useRef();
@@ -50,6 +54,7 @@ export default function (props: any) {
         onChange={(e) => {
           props.handleFileUpload(e.target.files[0]);
         }}
+        disabled={props.isUploadingFile}
       />
     </div>
   );

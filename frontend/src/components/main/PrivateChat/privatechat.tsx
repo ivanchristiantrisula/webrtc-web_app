@@ -60,13 +60,15 @@ interface a {
 }
 
 export default (props: a) => {
-  let classes = useStyle();
+  const classes = useStyle();
 
-  let [chat, setChat] = useState<any[]>([]);
-  let [videoCall, setVideoCall] = useState(false);
-  let [openUserPickerModal, setOpenUserPickerModal] = useState(false);
-  let [replyChat, setReplyChat] = useState({});
-  let [reportChat, setReportChat] = useState<any>(null);
+  const [chat, setChat] = useState<any[]>([]);
+  const [videoCall, setVideoCall] = useState(false);
+  const [openUserPickerModal, setOpenUserPickerModal] = useState(false);
+  const [replyChat, setReplyChat] = useState({});
+  const [reportChat, setReportChat] = useState<any>(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+
   //let [forwardChat, setForwardChat] = useState({});
   const worker = new Worker("../worker.js");
   let forwardChat = useRef({});
@@ -110,13 +112,17 @@ export default (props: a) => {
   };
 
   const handleFileUpload = async (file: File) => {
-    const MAXIMUM_CHUNK_SIZE = 16 * 1024; //max size 16kb
+    setIsUploadingFile(true);
+
+    const MAXIMUM_CHUNK_SIZE = 16 * 1024; //WEBRTC only allows max 16kb buffer size
     const peer = props.peer;
 
     const arrayBuffer = await file.arrayBuffer();
     for (let i = 0; i < arrayBuffer.byteLength; i += MAXIMUM_CHUNK_SIZE) {
       peer.write(Buffer.from(arrayBuffer.slice(i, i + MAXIMUM_CHUNK_SIZE))); //split file to smaller chunk size
     }
+
+    //send chat info after file upload finished
     peer.write(
       JSON.stringify({
         type: "file",
@@ -129,6 +135,8 @@ export default (props: a) => {
         timestamp: new Date().getTime(),
       })
     );
+
+    setIsUploadingFile(false);
   };
 
   const handleForward = (chat: any, targetSID: any) => {
@@ -245,17 +253,16 @@ export default (props: a) => {
             handleFileUpload={(file: File) => {
               handleFileUpload(file);
             }}
+            isUploadingFile={isUploadingFile}
           />
         </Box>
       </Box>
       {videoCall ? (
-        <div>
-          <VideoCall
-            peer={props.peer}
-            userSocketID={props.userSocketID}
-            socket={props.socket}
-          />
-        </div>
+        <VideoCall
+          peer={props.peer}
+          userSocketID={props.userSocketID}
+          socket={props.socket}
+        />
       ) : null}
       <UserPicker
         isOpen={openUserPickerModal}
@@ -265,6 +272,7 @@ export default (props: a) => {
         title="Foward"
         handleClose={() => setOpenUserPickerModal(false)}
       />
+
       <Report
         open={!_.isEmpty(reportChat)}
         chat={reportChat ? reportChat.chat : {}}
