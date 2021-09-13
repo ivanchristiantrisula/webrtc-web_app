@@ -244,7 +244,7 @@ const App = () => {
     });
   };
 
-  function download(socket_id: string, name: string) {
+  const download = (socket_id: string, name: string) => {
     //setGotFile(false);
     fileTransfers.current[socket_id].postMessage("download");
     fileTransfers.current[socket_id].addEventListener(
@@ -255,7 +255,7 @@ const App = () => {
         stream.pipeTo(fileStream);
       }
     );
-  }
+  };
 
   const startPeerConnection = (socketRecipient: string) => {
     if (peers.current[socketRecipient] === undefined) {

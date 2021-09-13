@@ -21,7 +21,7 @@ const useStyles = makeStyles({
 
 export default function ProfileCard(props: {
   user: any;
-  isUserFriend: boolean;
+  isUserFriend?: boolean;
   addFriendHandler?: Function;
 }) {
   const classes = useStyles();

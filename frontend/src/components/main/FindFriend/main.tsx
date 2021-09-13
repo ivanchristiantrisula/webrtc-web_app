@@ -9,6 +9,7 @@ export default () => {
   let [userDetail, setUserDetail] = useState({});
   let [openProfileCard, setOpenProfileCard] = useState(false);
   let [cardAnchorEl, setCardAnchorEl] = useState<HTMLDivElement>();
+
   useEffect(() => {
     axios
       .get(
