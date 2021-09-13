@@ -31,7 +31,7 @@ function App() {
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <SnackbarProvider
-          maxSnack={3}
+          maxSnack={5}
           classes={{
             variantSuccess: classes.snackbar,
             variantError: classes.snackbar,

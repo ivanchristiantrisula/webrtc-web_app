@@ -12,6 +12,7 @@ import _ from "underscore";
 import ReplyCard from "./replyCard";
 import { Box, createStyles, Grid, makeStyles } from "@material-ui/core";
 import Report from "../Report";
+import { useSnackbar } from "notistack";
 
 const useStyle = makeStyles(() =>
   createStyles({
@@ -71,9 +72,9 @@ export default (props: a) => {
   const worker = new Worker("../worker.js");
   let forwardChat = useRef({});
 
+  const { enqueueSnackbar } = useSnackbar();
+
   useEffect(() => {
-    //console.log(props.peer);
-    //console.log(props);
     props.socket.on("startVideoCall", () => {
       startVideoCall(false);
     });
@@ -89,7 +90,7 @@ export default (props: a) => {
       kind: "direct", //direct,forward,quote TODO : GANTI KIND JADI SOURCE
       type: "text",
       message: text,
-      timestamp: new Date().getTime(),
+      timestamp: new Date(),
     };
     if (_.isEmpty(replyChat)) {
       payload["reply"] = null;
@@ -110,25 +111,58 @@ export default (props: a) => {
   };
 
   const handleFileUpload = async (file: File) => {
-    const MAXIMUM_CHUNK_SIZE = 16 * 1024; //max size 16kb
+    const MAXIMUM_CHUNK_SIZE = 16 * 1024; //max size 16KB
     const peer = props.peer;
+    enqueueSnackbar(
+      `Uploading file to ${
+        props.users[props.recipientSocketID].name
+      } \n ${formatBytes(file.size)}`,
+      {
+        variant: "info",
+        persist: false,
+      }
+    );
 
     const arrayBuffer = await file.arrayBuffer();
     for (let i = 0; i < arrayBuffer.byteLength; i += MAXIMUM_CHUNK_SIZE) {
-      peer.write(Buffer.from(arrayBuffer.slice(i, i + MAXIMUM_CHUNK_SIZE))); //split file to smaller chunk size
+      peer.write(Buffer.from(arrayBuffer.slice(i, i + MAXIMUM_CHUNK_SIZE))); //split file to smaller chunk size then send it
     }
     peer.write(
       JSON.stringify({
         type: "file",
         done: true,
         name: file.name,
-        fileType: file.type,
+        fileType: file.type || "file/other",
         senderInfo: props.myInfo,
         from: props.userSocketID,
         kind: "direct",
-        timestamp: new Date().getTime(),
+        timestamp: new Date(),
+        size: formatBytes(file.size),
       })
     );
+
+    props.addChatFromSender({
+      senderInfo: props.myInfo,
+      from: props.userSocketID,
+      kind: "direct", //direct,forward,quote TODO : GANTI KIND JADI SOURCE
+      type: file.type,
+      name: file.name,
+      timestamp: new Date(),
+      file: file,
+      size: formatBytes(file.size),
+    });
+
+    function formatBytes(bytes: number, decimals = 1) {
+      if (bytes === 0) return "0 Bytes";
+
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+    }
   };
 
   const handleForward = (chat: any, targetSID: any) => {

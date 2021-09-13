@@ -5,7 +5,6 @@ import Friendlist from "./Friendlist/friendlist";
 import _, { omit } from "underscore";
 import Peer from "simple-peer";
 import PrivateChat from "./PrivateChat/privatechat";
-import SimplePeerFiles from "simple-peer-files";
 import { makeStyles } from "@material-ui/styles";
 import SearchUser from "./SearchUser/searchuser";
 import axios from "axios";
@@ -41,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
   chatContainer: {
     backgroundColor: theme.palette.background.default,
-    borderLeft: "solid black 1px",
+    borderLeft: "solid #d7d9d7 1px",
   },
 
   meeting: { backgroundColor: theme.palette.background.default },
@@ -83,8 +82,6 @@ const App = () => {
 
   const { enqueueSnackbar } = useSnackbar();
   const classes = useStyles();
-
-  const spf = new SimplePeerFiles();
 
   useEffect(() => {
     initSocketListener();
@@ -182,88 +179,60 @@ const App = () => {
       });
     });
 
-    spf.receive(peers.current[socket_id], "1").then((transfer: any) => {
-      //alert("masok gan");
-      transfer.on("progress", (sentBytes: any) => {
-        console.log(sentBytes);
-      });
-
-      transfer.on("done", (file: any) => {
-        console.log(file);
-        //alert("done trf");
-        let payload = {
-          senderInfo: allUsers[socket_id],
-          from: socket_id,
-          kind: "direct",
-          type: file.type,
-          timestamp: new Date().getTime(),
-          file: file,
-        };
-        let x = chats;
-        if (x[socket_id] === undefined) {
-          x[socket_id] = new Array(payload);
-        } else {
-          x[socket_id].push(payload);
-        }
-        setChats({ ...x });
-      });
-
-      // Call readyToSend() in the sender side
-      //peer.send("heySenderYouCanSendNow");
-    });
-
     peers.current[socket_id].on("data", (data: any) => {
       let dataType = "";
       if (Buffer.isBuffer(data)) dataType = "buffer";
       if (typeof data === "string") dataType = "string";
 
-      if (dataType === "buffer") {
-        const isJsonParsable = (x: Buffer) => {
-          try {
-            JSON.parse(x.toString());
-          } catch (e) {
-            return false;
-          }
-          return true;
-        };
+      const isJsonParsable = (x: Buffer) => {
+        try {
+          JSON.parse(x.toString());
+        } catch (e) {
+          return false;
+        }
+        return true;
+      };
 
-        if (isJsonParsable(data)) {
-          data = JSON.parse(data.toString());
-          console.log(data);
-          if (data.type === "file") {
-            if (data.done) {
-              download(socket_id, data.name);
+      if (isJsonParsable(data)) {
+        data = JSON.parse(data.toString());
+        if (data.type === "file") {
+          if (data.done) {
+            let x = chats;
+            if (x[socket_id] === undefined) {
+              x[socket_id] = new Array(data);
+            } else {
+              x[socket_id].push(data);
             }
-          } else if (data.type === "text") {
-            let parsedData = data;
-            if (parsedData.kind) {
-              let x = chats;
-              if (x[socket_id] === undefined) {
-                x[socket_id] = new Array(parsedData);
-              } else {
-                x[socket_id].push(parsedData);
-              }
-              setChats({ ...x });
-            }
-            console.log(parsedData);
-            enqueueSnackbar(
-              `${parsedData.senderInfo.name} \n ${parsedData.message}`,
-              {
-                variant: "success",
-              }
-            );
+            setChats({ ...x });
+            download(socket_id, data.name);
           }
-        } else {
-          //IF DATA ISNT PARSEABLE, THEN IT HAS TO BE ARRAY BUFFER
-          if (fileTransfers.current[socket_id] === undefined)
-            //CHECK IF SERVICE WORKER IS AVAILABLE FOR THIS PEER
-            fileTransfers.current[socket_id] = new Worker("../worker.js"); //CREATE NEW SERVICE WORKER TO RECEIVE ARRAY BUFFER
-
-          fileTransfers.current[socket_id].postMessage(
-            new Uint8Array(data).buffer //convert buffer to arraybuffer
+        } else if (data.type === "text") {
+          let parsedData = data;
+          if (parsedData.kind) {
+            let x = chats;
+            if (x[socket_id] === undefined) {
+              x[socket_id] = new Array(parsedData);
+            } else {
+              x[socket_id].push(parsedData);
+            }
+            setChats({ ...x });
+          }
+          enqueueSnackbar(
+            `${parsedData.senderInfo.name} \n ${parsedData.message}`,
+            {
+              variant: "success",
+            }
           );
         }
-      } else if (dataType == "string") {
+      } else {
+        //IF DATA ISNT PARSEABLE, THEN IT HAS TO BE ARRAY BUFFER
+        if (fileTransfers.current[socket_id] === undefined)
+          //CHECK IF SERVICE WORKER IS AVAILABLE FOR THIS PEER
+          fileTransfers.current[socket_id] = new Worker("../worker.js"); //CREATE NEW SERVICE WORKER TO RECEIVE ARRAY BUFFER
+
+        fileTransfers.current[socket_id].postMessage(
+          new Uint8Array(data).buffer //convert buffer to arraybuffer then passes it to worker
+        );
       }
     });
 
@@ -315,7 +284,7 @@ const App = () => {
       })
       .then((res) => {
         let allFriends = res.data.friends;
-
+        console.log(allFriends);
         //intersects all user array with all friends array to find online ones
         let intersects = {};
         for (const key in allUsers) {
@@ -326,7 +295,7 @@ const App = () => {
                 (friend: any) => friend._id == element._id
               );
               if (friendIdx != -1) {
-                intersects[key] = allFriends[friendIdx];
+                intersects[key] = allUsers[key];
               }
             }
           }

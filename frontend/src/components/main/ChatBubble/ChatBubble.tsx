@@ -5,14 +5,48 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Typography from "@material-ui/core/Typography";
 import ReplyBubble from "./replyBubble";
-import { makeStyles, Theme } from "@material-ui/core";
+import { Box, Grid, makeStyles, Theme } from "@material-ui/core";
 import { classicNameResolver } from "typescript";
+import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
+import GetAppIcon from "@material-ui/icons/GetApp";
+import PublishIcon from "@material-ui/icons/Publish";
 
 const useStyles = makeStyles((theme: Theme) => ({
   reportBubble: {
     border: "solid red 2px",
   },
 }));
+
+const FileBubble = (props: { chat: any; sender: string }) => {
+  return (
+    <Box flexGrow={1} height="auto" width="300px">
+      <Grid container spacing={2}>
+        <Grid item>
+          {props.sender === "me" ? (
+            <PublishIcon fontSize="large" />
+          ) : (
+            <GetAppIcon fontSize="large" />
+          )}
+        </Grid>
+        <Grid item xs={12} sm container>
+          <Grid item xs container direction="column" spacing={2}>
+            <Grid item xs>
+              <Typography gutterBottom variant="subtitle1">
+                {props.sender === "me" ? "File Sent" : "File Received"}
+              </Typography>
+              <Typography variant="body2" gutterBottom>
+                {props.chat.name}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {props.chat.size}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
 
 export default function (props: {
   data: any;
@@ -44,9 +78,15 @@ export default function (props: {
       return props.data.message;
     } else {
       let typeSplit = props.data.type.split("/");
-      console.log(props.data);
       if (typeSplit[0] == "image") {
         return <img src={URL.createObjectURL(props.data.file)}></img>;
+      } else {
+        return (
+          <FileBubble
+            chat={props.data}
+            sender={props.data.from == props.socketID ? "me" : "them"}
+          />
+        );
       }
     }
   };

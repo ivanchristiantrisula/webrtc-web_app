@@ -112,6 +112,7 @@ app.post("/addFriend", async (req, res) => {
               name: user.name,
               email: user.email,
               username: user.username,
+              profilepicture: user.profilepicture,
             };
             User.updateOne(
               { _id: target._id },
@@ -205,6 +206,7 @@ app.post("/acceptFriendRequest", (req, res) => {
         name: user.name,
         email: user.email,
         username: user.username,
+        profilepicture: user.profilepicture,
       };
 
       User.updateOne(
