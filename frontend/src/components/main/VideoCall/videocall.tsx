@@ -1,4 +1,4 @@
-import { createStyles } from "@material-ui/core";
+import { Box, createStyles, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { Socket } from "net";
 import { useEffect, useRef, useState } from "react";
@@ -6,43 +6,30 @@ import BottomBar from "./bottomBar";
 
 const useStyles = makeStyles(() =>
   createStyles({
-    videoArea: {
-      position: "relative",
-      top: 0,
-      bottom: 0,
-      width: "100%",
-      height: "80%",
-      overlay: "hidden",
-    },
+    videoArea: {},
     partner: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "90%",
+      maxHeight: "90%",
     },
     user: {
       position: "absolute",
-      zIndex: 1,
-      bottom: 0,
+      zIndex: 999,
+      top: 0,
       right: 0,
-      width: "10%",
-      height: "10%",
+      width: "300px",
+      height: "200px",
     },
     partnerVideo: {
-      minWidth: "100%",
-      minHeight: "100%",
-      width: "auto",
-      height: "auto",
+      width: "100%",
+      height: "100%",
+      maxHeight: "100%",
     },
     userVideo: {
-      width: "auto",
-      height: "auto",
+      width: "300px",
+      height: "150px",
     },
     bottomBar: {
       backgroundColor: "black",
-      height: "auto",
-      zIndex: 2,
+      height: "10%",
     },
   })
 );
@@ -81,9 +68,9 @@ export default (props: any) => {
   };
 
   return (
-    <div>
-      <div className={classes.videoArea}>
-        <div className={classes.partner}>
+    <>
+      {/* <Box className={classes.videoArea}>
+        <Box className={classes.partner}>
           <video
             className={classes.partnerVideo}
             playsInline
@@ -91,8 +78,8 @@ export default (props: any) => {
             ref={partnerVideo}
             autoPlay
           />
-        </div>
-        <div className={classes.user}>
+        </Box>
+        <Box className={classes.user}>
           <video
             className={classes.userVideo}
             playsInline
@@ -100,14 +87,42 @@ export default (props: any) => {
             ref={userVideo}
             autoPlay
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
       <BottomBar
         className={classes.bottomBar}
         endCall={() => {
           endCall();
         }}
-      />
-    </div>
+      /> */}
+      <Grid container>
+        <Grid item xs={12} className={classes.partner}>
+          <video
+            className={classes.partnerVideo}
+            playsInline
+            muted
+            ref={partnerVideo}
+            autoPlay
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <BottomBar
+            className={classes.bottomBar}
+            endCall={() => {
+              endCall();
+            }}
+          />
+        </Grid>
+      </Grid>
+      <Box className={classes.user}>
+        <video
+          className={classes.userVideo}
+          playsInline
+          muted
+          ref={userVideo}
+          autoPlay
+        />
+      </Box>
+    </>
   );
 };

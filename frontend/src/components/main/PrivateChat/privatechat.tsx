@@ -45,6 +45,10 @@ const useStyle = makeStyles(() =>
       bottom: "0px",
       width: "100%",
     },
+
+    noDisplay: {
+      display: "none",
+    },
   })
 );
 
@@ -247,7 +251,11 @@ export default (props: a) => {
   };
   return (
     <div className={classes.root}>
-      <Box display="flex" className={classes.root} flexDirection="column">
+      <Box
+        display="flex"
+        className={`${classes.root} ${videoCall ? classes.noDisplay : null}`}
+        flexDirection="column"
+      >
         <Box order={1} className={classes.topBar}>
           <TopBar
             startVideoCall={() => {
