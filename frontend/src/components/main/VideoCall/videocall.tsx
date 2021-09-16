@@ -2,14 +2,11 @@ import { Box, createStyles, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { Socket } from "net";
 import { useEffect, useRef, useState } from "react";
-import BottomBar from "./bottomBar";
+import BottomBar from "./bottombar";
 
 const useStyles = makeStyles(() =>
   createStyles({
     videoArea: {},
-    partner: {
-      maxHeight: "90%",
-    },
     user: {
       position: "absolute",
       zIndex: 999,
@@ -20,7 +17,8 @@ const useStyles = makeStyles(() =>
     },
     partnerVideo: {
       width: "100%",
-      height: "100%",
+      height: "90%",
+      maxWidth: "100%",
       maxHeight: "100%",
     },
     userVideo: {
@@ -67,6 +65,16 @@ export default (props: any) => {
     props.peer.removeStream(userStream);
   };
 
+  const muteAudio = () => {
+    partnerVideo.current.srcObject.getAudioTracks()[0].enabled =
+      !partnerVideo.current.srcObject.getAudioTracks()[0].enabled;
+  };
+
+  const muteVideo = () => {
+    userVideo.current.srcObject.getVideoTracks()[0].enabled =
+      !userVideo.current.srcObject.getVideoTracks()[0].enabled;
+  };
+
   return (
     <>
       {/* <Box className={classes.videoArea}>
@@ -96,7 +104,7 @@ export default (props: any) => {
         }}
       /> */}
       <Grid container>
-        <Grid item xs={12} className={classes.partner}>
+        <Grid item xs={12}>
           <video
             className={classes.partnerVideo}
             playsInline
@@ -106,12 +114,13 @@ export default (props: any) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <BottomBar
-            className={classes.bottomBar}
-            endCall={() => {
-              endCall();
-            }}
-          />
+          <Box className={classes.bottomBar}>
+            <BottomBar
+              handleEndCall={endCall}
+              handleMuteAudio={muteAudio}
+              handleMuteVideo={muteVideo}
+            />
+          </Box>
         </Grid>
       </Grid>
       <Box className={classes.user}>
