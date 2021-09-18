@@ -22,8 +22,7 @@ const useStyle = makeStyles(() =>
       width: "100%",
     },
     topBar: {
-      height: "2.5rem",
-      borderBottom: "solid black 1px",
+      borderBottom: "solid #d7d9d7 1px",
       width: "100%",
       minWidth: "100%",
     },
@@ -31,6 +30,7 @@ const useStyle = makeStyles(() =>
       width: "100%",
       minWidth: "100%",
       overflowY: "scroll",
+      marginTop: "1rem",
     },
     chatContainer1: {
       width: "100%",
@@ -41,9 +41,8 @@ const useStyle = makeStyles(() =>
       width: "100%",
     },
     bottomBar: {
-      height: "100px",
+      borderTop: "solid #d7d9d7 1px",
       bottom: "0px",
-      width: "100%",
     },
 
     noDisplay: {
@@ -261,6 +260,7 @@ export default (props: a) => {
             startVideoCall={() => {
               startVideoCall(true);
             }}
+            user={props.myInfo}
           />
         </Box>
         <Box order={2} className={classes.chatArea} flexGrow={1}>

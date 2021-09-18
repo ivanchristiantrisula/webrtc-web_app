@@ -16,12 +16,14 @@ ul li {
 .them {
   background: #eee;
   float: left;
+  white-space: pre-line;
 }
 
 .me {
   float: right;
   background: #0084ff;
   color: #fff;
+  white-space: pre-line;
 }
 
 img {

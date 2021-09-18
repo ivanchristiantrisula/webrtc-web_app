@@ -62,6 +62,7 @@ export default (props: any) => {
   }, []);
 
   const endCall = () => {
+    alert("msok");
     props.peer.removeStream(userStream);
   };
 

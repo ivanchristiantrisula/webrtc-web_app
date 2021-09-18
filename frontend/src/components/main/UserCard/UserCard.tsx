@@ -6,17 +6,19 @@ import {
   Card,
   CardContent,
   Box,
+  CardHeader,
+  IconButton,
 } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import { deepOrange, deepPurple } from "@material-ui/core/colors";
 import { useEffect } from "react";
+import { MoreVert as MoreVertIcon } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: "5rem",
       alignItems: "center",
-      margin: "10px",
+      margin: "0.5rem",
     },
     orange: {
       color: theme.palette.getContrastText(deepOrange[500]),
@@ -41,30 +43,16 @@ export default function (props: any) {
   }, []);
 
   return (
-    // <div style={{ height: "auto" }}>
-    //   <Grid container spacing={1} className={classes.root}>
-    //     <Grid item xs={2} className={classes.avatar}>
-    //       <Avatar className={classes.purple}>
-    //         {props.user.name.charAt(0)}
-    //       </Avatar>
-    //     </Grid>
-    //     <Grid item>{props.user.name}</Grid>
-    //   </Grid>
-    // </div>
     <Card className={classes.root}>
-      <CardContent>
-        <Grid container spacing={1}>
-          <Grid item xs={2} className={classes.avatar}>
-            <Avatar
-              className={classes.purple}
-              src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${props.user.profilepicture}.png`}
-            />
-          </Grid>
-          <Grid item xs>
-            {props.user.name}
-          </Grid>
-        </Grid>
-      </CardContent>
+      <CardHeader
+        avatar={
+          <Avatar
+            className={classes.purple}
+            src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${props.user.profilepicture}.png`}
+          />
+        }
+        title={props.user.name}
+      />
     </Card>
   );
 }
