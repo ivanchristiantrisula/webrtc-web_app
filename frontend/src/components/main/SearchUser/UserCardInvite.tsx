@@ -22,12 +22,7 @@ import ProfileCard from "../ProfileCard";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      display: "flex",
-      alignItems: "center",
-    },
-    orange: {
-      color: theme.palette.getContrastText(deepOrange[500]),
-      backgroundColor: deepOrange[500],
+      margin: "0 0.5rem 1rem 0.5rem",
     },
     purple: {
       color: theme.palette.getContrastText(deepPurple[500]),
@@ -36,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
       height: theme.spacing(7),
     },
     avatar: {
-      marginLeft: "0.8rem",
+      marginLeft: "0.5rem",
     },
   })
 );
@@ -67,15 +62,16 @@ export default function (props: {
   return (
     <>
       <ClickAwayListener onClickAway={closePopper}>
-        <div style={{ height: "auto", margin: "0.5rem" }} ref={rootAnchorRef}>
-          <Card>
+        <div style={{ height: "auto" }} ref={rootAnchorRef}>
+          <Card className={classes.root}>
             <CardContent>
-              <Grid container spacing={1} className={classes.root}>
+              <Grid container spacing={1} alignItems="center">
                 <Grid item xs={2} className={classes.avatar}>
                   <ButtonBase onClick={toggleProfileCard}>
-                    <Avatar className={classes.purple}>
-                      {props.user.name.charAt(0)}
-                    </Avatar>
+                    <Avatar
+                      src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${props.user.profilepicture}.png`}
+                      className={classes.purple}
+                    />
                   </ButtonBase>
                 </Grid>
                 <Grid item xs={6}>

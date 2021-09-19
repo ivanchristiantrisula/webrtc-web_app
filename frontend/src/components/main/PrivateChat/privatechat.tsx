@@ -22,15 +22,15 @@ const useStyle = makeStyles(() =>
       width: "100%",
     },
     topBar: {
-      borderBottom: "solid #d7d9d7 1px",
       width: "100%",
       minWidth: "100%",
     },
     chatArea: {
-      width: "100%",
-      minWidth: "100%",
-      overflowY: "scroll",
       marginTop: "1rem",
+      marginLeft: "1rem",
+      marginRight: "1rem",
+      overflowY: "hidden",
+      overflowX: "hidden",
     },
     chatContainer1: {
       width: "100%",
@@ -41,7 +41,6 @@ const useStyle = makeStyles(() =>
       width: "100%",
     },
     bottomBar: {
-      borderTop: "solid #d7d9d7 1px",
       bottom: "0px",
     },
 
@@ -160,6 +159,8 @@ export default (props: a) => {
       file: file,
       size: formatBytes(file.size),
     });
+
+    setIsUploadingFile(false);
 
     function formatBytes(bytes: number, decimals = 1) {
       if (bytes === 0) return "0 Bytes";

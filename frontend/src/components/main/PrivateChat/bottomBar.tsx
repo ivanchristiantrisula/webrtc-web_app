@@ -32,7 +32,7 @@ export default function (props: {
 }) {
   const classes = useStyles();
   let [text, setText] = useState("");
-  let fileInput = useRef();
+  let fileInputRef = useRef<HTMLInputElement>();
   let textInput = useRef<TextFieldProps>();
 
   useLayoutEffect(() => {
@@ -47,29 +47,17 @@ export default function (props: {
     }
   };
 
+  const handleClickUpload = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileSelected = (e: any) => {
+    props.handleFileUpload(e.target.files[0]);
+
+    fileInputRef.current.value = null;
+  };
+
   return (
-    // <div className={classes.root}>
-    //   <TextField
-    //     label="Send a text"
-    //     inputRef={textInput}
-    //     onChange={(e) => setText(e.target.value)}
-    //     onKeyPress={(e) => {
-    //       if (e.key === "Enter") {
-    //         sendText();
-    //       }
-    //     }}
-    //   />
-    //   <div onClick={sendText}>
-    //     <SendIcon />
-    //   </div>
-    //   <input
-    //     type="file"
-    //     onChange={(e) => {
-    //       props.handleFileUpload(e.target.files[0]);
-    //     }}
-    //     disabled={props.isUploadingFile}
-    //   />
-    // </div>
     <Container maxWidth={false} className={classes.root}>
       <Grid
         container
@@ -80,7 +68,7 @@ export default function (props: {
       >
         <Grid item>
           <Box textAlign="center">
-            <ButtonBase>
+            <ButtonBase onClick={handleClickUpload}>
               <PublishOutlinedIcon />
             </ButtonBase>
           </Box>
@@ -105,6 +93,15 @@ export default function (props: {
           </Box>
         </Grid>
       </Grid>
+
+      {/* hidden input */}
+      <input
+        type="file"
+        onChange={handleFileSelected}
+        disabled={props.isUploadingFile}
+        style={{ display: "none" }}
+        ref={fileInputRef}
+      />
     </Container>
   );
 }

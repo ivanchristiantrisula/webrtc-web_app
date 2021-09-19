@@ -1,4 +1,16 @@
-import { createStyles, makeStyles, Modal, Theme } from "@material-ui/core";
+import {
+  Card,
+  createStyles,
+  makeStyles,
+  Modal,
+  Theme,
+  Avatar,
+  CardHeader,
+  IconButton,
+  FormControl,
+  Typography,
+  Box,
+} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -7,6 +19,7 @@ import _ from "underscore";
 import SearchIcon from "@material-ui/icons/Search";
 import Grid from "@material-ui/core/Grid";
 import UserCardInvite from "./UserCardInvite";
+import { MoreVert as MoreVertIcon } from "@material-ui/icons";
 require("dotenv").config();
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -25,14 +38,13 @@ const useStyles = makeStyles((theme: Theme) =>
       marginLeft: -200,
       marginTop: -300,
       backgroundColor: theme.palette.background.paper,
-      border: "2px solid #000",
+      border: "solid #d7d9d7 1px",
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
     },
     findUserBox: {
-      width: "100%",
-      height: "50px",
-      backgroudColor: "black",
+      backgroudColor: theme.palette.background.paper,
+      height: theme.spacing(7),
     },
   })
 );
@@ -127,7 +139,7 @@ export default () => {
   };
   return (
     <div className={classes.root}>
-      <div
+      {/* <div
         className={classes.findUserBox}
         onClick={() => {
           setOpenSearchUserModal(true);
@@ -141,9 +153,27 @@ export default () => {
             Find User
           </Grid>
         </Grid>
-      </div>
+      </div> */}
+      <Card
+        className={classes.findUserBox}
+        onClick={() => {
+          setOpenSearchUserModal(true);
+        }}
+      >
+        <CardHeader
+          avatar={<SearchIcon />}
+          title="Find User"
+          style={{ backgroundColor: "transparent" }}
+        />
+      </Card>
 
       <div>
+        <Box margin="1rem 1rem 1rem 1rem">
+          <Typography variant="subtitle2" color="textSecondary">
+            Friend Invitations {`(${pendings.length})`}
+          </Typography>
+        </Box>
+
         {pendings.length > 0
           ? pendings.map((obj) => {
               return (
@@ -164,11 +194,16 @@ export default () => {
         }}
       >
         <div className={classes.paper}>
-          <h2 id="simple-modal-title">Find User</h2>
-          <TextField
-            label="Send a text"
-            onChange={(e) => handleKeywordChange(e.target.value)}
-          />
+          <h2 id="simple-modal-title">Find user</h2>
+          <FormControl fullWidth>
+            <TextField
+              label="Search by username or email"
+              onChange={(e) => handleKeywordChange(e.target.value)}
+              variant="outlined"
+              fullWidth
+            />
+          </FormControl>
+
           <div>
             {users.map((obj) => {
               if (!_.isEmpty(obj))

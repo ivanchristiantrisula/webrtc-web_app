@@ -255,6 +255,7 @@ const App = () => {
         stream.pipeTo(fileStream);
       }
     );
+    delete fileTransfers.current[socket_id];
   };
 
   const startPeerConnection = (socketRecipient: string) => {

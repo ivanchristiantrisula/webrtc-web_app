@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   ButtonBase,
+  Card,
   CardHeader,
   createStyles,
   Grid,

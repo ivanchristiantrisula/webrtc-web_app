@@ -4,10 +4,15 @@ import {
   Theme,
   Grid,
   Button,
+  Card,
+  CardHeader,
+  IconButton,
+  Box,
 } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import { deepOrange, deepPurple } from "@material-ui/core/colors";
 import { useEffect } from "react";
+import { MoreVert as MoreVertIcon } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,38 +32,44 @@ const useStyles = makeStyles((theme: Theme) =>
       width: theme.spacing(7),
       height: theme.spacing(7),
     },
-    avatar: {
-      marginLeft: "0.8rem",
+    avatar: {},
+    buttonArea: {
+      display: "flex",
+      alignItems: "center",
+    },
+    card: {
+      marginTop: "1rem",
     },
   })
 );
 
-export default function (props: any) {
+export default function (props: { user: any; addFriend: Function }) {
   const classes = useStyles();
 
   return (
-    <div style={{ height: "auto" }}>
-      <Grid container spacing={1} className={classes.root}>
-        <Grid item xs={2} className={classes.avatar}>
-          <Avatar className={classes.purple}>
-            {props.user.name.charAt(0)}
-          </Avatar>
-        </Grid>
-        <Grid item xs={6}>
-          {props.user.name}
-        </Grid>
-        <Grid>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              props.addFriend(props.user);
-            }}
-          >
-            Add Friend
-          </Button>
-        </Grid>
-      </Grid>
-    </div>
+    <Card className={classes.card}>
+      <CardHeader
+        avatar={
+          <Avatar
+            src={`${process.env.REACT_APP_BACKEND_URI}/profilepictures/${props.user.profilepicture}.png`}
+          />
+        }
+        action={
+          <IconButton>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                props.addFriend(props.user);
+              }}
+            >
+              Add
+            </Button>
+          </IconButton>
+        }
+        title={props.user.name}
+        subheader=""
+      />
+    </Card>
   );
 }
