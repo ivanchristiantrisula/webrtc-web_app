@@ -1,4 +1,11 @@
-import { Box, createStyles, Grid, makeStyles, Theme } from "@material-ui/core";
+import {
+  Box,
+  ButtonBase,
+  createStyles,
+  Grid,
+  makeStyles,
+  Theme,
+} from "@material-ui/core";
 import AirplayIcon from "@material-ui/icons/Airplay";
 import VideoLabelIcon from "@material-ui/icons/VideoLabel";
 import MicIcon from "@material-ui/icons/Mic";
@@ -50,6 +57,7 @@ export default (props: {
   handleMuteVideo: Function;
   handleMuteAudio: Function;
   handleScreenShare: Function;
+  handleWhiteboard: Function;
 }) => {
   const classes = useStyle();
   const [video, setVideo] = useState(true);
@@ -66,7 +74,10 @@ export default (props: {
               />
               Screen Share
             </Box>
-            <Box className={classes.iconContainer}>
+            <Box
+              className={classes.iconContainer}
+              onClick={() => props.handleWhiteboard()}
+            >
               <VideoLabelIcon fontSize="large" />
               Whiteboard
             </Box>

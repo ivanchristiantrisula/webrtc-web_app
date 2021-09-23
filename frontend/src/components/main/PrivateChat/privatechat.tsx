@@ -6,7 +6,6 @@ import ChatBubble from "../ChatBubble/ChatBubble";
 import TopBar from "./topbar";
 import VideoCall from "../VideoCall/videocall";
 import { Socket } from "dgram";
-import SimplePeerFiles from "simple-peer-files";
 import UserPicker from "../UserPicker";
 import _ from "underscore";
 import ReplyCard from "./replyCard";

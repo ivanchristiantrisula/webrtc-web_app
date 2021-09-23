@@ -2,10 +2,11 @@ import { useRef, useState, useEffect } from "react";
 import Peer from "simple-peer";
 import UserPicker from "../UserPicker";
 import _ from "underscore";
-import { Box, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, createStyles, makeStyles, Modal, Theme } from "@material-ui/core";
 import React from "react";
 import BottomBar from "./bottombar";
 import { Socket } from "socket.io-client";
+import Whiteboard from "./whiteboard";
 // @ts-ignore
 
 const useStyle = makeStyles((theme: Theme) =>
@@ -51,6 +52,9 @@ const useStyle = makeStyles((theme: Theme) =>
       maxWidth: "100%",
       maxHeight: "100%",
     },
+    noDisplay: {
+      display: "none",
+    },
   })
 );
 
@@ -89,6 +93,7 @@ export default (props: {
   const [peers, setPeers] = useState([]);
   const [isScreensharing, setIsScreensharing] = useState(false);
   const [focusedOn, setFocusedOn] = useState("");
+  const [whiteboardMode, setWhiteboardMode] = useState(false);
   //const [streams, setStreams] = useState([]);
 
   useEffect(() => {
@@ -295,11 +300,27 @@ export default (props: {
     setIsScreensharing(false);
   };
 
+  const toggleWhiteboard = () => setWhiteboardMode(!whiteboardMode);
+
+  const handleStreamWhiteboard = (stream: MediaStream) => {
+    console.log(stream.getVideoTracks());
+    peersRef.current.forEach((element) => {
+      element.peer.replaceTrack(
+        element.peer.streams[0].getVideoTracks()[0],
+        stream.getVideoTracks()[0],
+        myStreamRef.current.srcObject
+      );
+      //element.peer.addStream(stream);
+    });
+  };
+
   return (
     <>
       <Box display="flex" flexDirection="column" className={classes.root}>
         <Box
-          className={classes.videoArea}
+          className={`${classes.videoArea} ${
+            whiteboardMode ? classes.noDisplay : null
+          }`}
           display="flex"
           flexWrap="wrap"
           flexDirection="row"
@@ -334,6 +355,16 @@ export default (props: {
             />
           </Box>
         </Box>
+
+        {whiteboardMode ? (
+          <Box
+            width="100%"
+            height="100%"
+            className={!whiteboardMode ? classes.noDisplay : ""}
+          >
+            <Whiteboard handleCaptureStream={handleStreamWhiteboard} />
+          </Box>
+        ) : null}
         <Box className={classes.bottomBar}>
           <BottomBar
             meetingID={props.meetingID}
@@ -342,6 +373,7 @@ export default (props: {
             handleMuteVideo={toggleVideo}
             handleMuteAudio={toggleAudio}
             handleScreenShare={toggleScreenShare}
+            handleWhiteboard={toggleWhiteboard}
           />
         </Box>
       </Box>
