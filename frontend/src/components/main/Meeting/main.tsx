@@ -14,7 +14,7 @@ const useStyle = makeStyles((theme: Theme) =>
     root: {
       width: "100%",
       height: "100%",
-      backgroundColor: "black",
+      backgroundColor: "white",
     },
 
     videoArea: {
@@ -268,6 +268,7 @@ export default (props: {
         //@ts-ignore
         .getDisplayMedia({ audio: false, video: true })
         .then((stream: MediaStream) => {
+          console.log(stream.getVideoTracks()[0]);
           screenShareRef.current = stream;
           peersRef.current.forEach((element) => {
             element.peer.replaceTrack(
@@ -300,17 +301,30 @@ export default (props: {
     setIsScreensharing(false);
   };
 
-  const toggleWhiteboard = () => setWhiteboardMode(!whiteboardMode);
+  const toggleWhiteboard = () => {
+    if (whiteboardMode) {
+      endWhiteboard();
+    }
+    setWhiteboardMode(!whiteboardMode);
+  };
 
-  const handleStreamWhiteboard = (stream: MediaStream) => {
-    console.log(stream.getVideoTracks());
+  const startWhiteboard = (stream: MediaStream) => {
     peersRef.current.forEach((element) => {
       element.peer.replaceTrack(
         element.peer.streams[0].getVideoTracks()[0],
         stream.getVideoTracks()[0],
         myStreamRef.current.srcObject
       );
-      //element.peer.addStream(stream);
+    });
+  };
+
+  const endWhiteboard = () => {
+    peersRef.current.forEach((element) => {
+      element.peer.replaceTrack(
+        element.peer.streams[0].getVideoTracks()[0],
+        myStreamRef.current.srcObject.getVideoTracks()[0],
+        myStreamRef.current.srcObject
+      );
     });
   };
 
@@ -362,7 +376,7 @@ export default (props: {
             height="100%"
             className={!whiteboardMode ? classes.noDisplay : ""}
           >
-            <Whiteboard handleCaptureStream={handleStreamWhiteboard} />
+            <Whiteboard handleCaptureStream={startWhiteboard} />
           </Box>
         ) : null}
         <Box className={classes.bottomBar}>
