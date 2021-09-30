@@ -14,7 +14,7 @@ const useStyle = makeStyles((theme: Theme) =>
     root: {
       width: "100%",
       height: "100%",
-      backgroundColor: "white",
+      backgroundColor: "black",
     },
 
     videoArea: {

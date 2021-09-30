@@ -15,7 +15,6 @@ const initState = {
 
 const Whiteboard = (props: { handleCaptureStream: Function }) => {
   const canvas = useRef<HTMLCanvasElement>();
-  const [elements, setElements] = useState([]);
   const [drawing, setDrawing] = useState(false);
 
   const [color, setColor] = useState(initState.color);
@@ -23,7 +22,8 @@ const Whiteboard = (props: { handleCaptureStream: Function }) => {
   const [lineWidth, setLineWidth] = useState(initState.lineWidth);
 
   useEffect(() => {
-    const ctx = canvas.current.getContext("2d");
+    //get context before capturing stream to avoid firefox crash
+    canvas.current.getContext("2d");
     //@ts-ignore
     props.handleCaptureStream(canvas.current.captureStream(30));
 
@@ -68,16 +68,13 @@ const Whiteboard = (props: { handleCaptureStream: Function }) => {
 
   return (
     <canvas
-      style={{ backgroundColor: "white" }}
       height={window.innerHeight}
       width={window.innerHeight}
       ref={canvas}
       onMouseDown={startDrawing}
       onMouseUp={endDrawing}
       onMouseMove={onDrawing}
-    >
-      Canvas
-    </canvas>
+    />
   );
 };
 
